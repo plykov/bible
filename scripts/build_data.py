@@ -9,7 +9,7 @@ Layout produced:
   text/{Book}/{ch}.json           interlinear words per verse (OT: TAHOT, NT: TAGNT)
   lxx/{Book}/{ch}.json            Swete LXX words per verse
   dss/{Book}/{ch}.json            Dead Sea Scrolls readings per verse (scroll, fragment, text)
-  syntax/{Book}/{ch}.json         BHSA clause atoms and phrase functions per verse
+  syntax/{Book}/{ch}.json         clauses and phrase roles per verse (BHSA for OT, MACULA for NT)
   lex/{H|G}{bucket}.json          brief lexicon + renderings + counts, 100 numbers per file
   lsj/G{bucket}.json              full LSJ entries (TFLSJ), Greek only
   occ/{H|G}{bucket}.json          every occurrence of every lemma
@@ -35,6 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from books import BOOKS, SWETE_BOOKS  # noqa: E402
 import build_bhsa  # noqa: E402
 import build_dss  # noqa: E402
+import build_greek_syntax  # noqa: E402
 import build_related  # noqa: E402
 from stem import stem, tokens  # noqa: E402
 
@@ -478,6 +479,7 @@ def main():
     lxx_books = build_lxx()
     dss_books = build_dss.build(chapters, OUT, write_json)
     roles = build_bhsa.build(chapters, OUT, write_json)
+    roles.update(build_greek_syntax.build(chapters, OUT, write_json))
 
     books = [{"id": code, "name": name, "t": t, "ch": chapter_counts.get(code, 0),
               "lxx": lxx_books.get(code, 0) if t == "OT" else 0, "dss": dss_books.get(code, 0)}
@@ -513,8 +515,9 @@ def main():
         b = bucket(s)
         if b:
             entry = {"g": [col.shown(s, g) for g in col.glosses[s]], "s": col.senses[s], "o": occ}
-            if s.startswith("H") and roles:
-                # Syntactic role (BHSA phrase function) of each occurrence, as an index into "r".
+            if roles:
+                # Syntactic role of each occurrence (BHSA phrase function for Hebrew,
+                # MACULA constituent role for Greek), as an index into "r".
                 names, index = [], {}
                 for o in occ:
                     bk, c, v = o[0].split(".")

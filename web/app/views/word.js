@@ -3,7 +3,7 @@ import * as data from "../data.js";
 import { glossMask } from "../search.js";
 import { stem } from "../stem.js";
 import { fill, h, isHebrew, langOf, sanitize, studyLinks, surface } from "../util.js";
-import { FUNCTION } from "../syntax.js";
+import { roleName } from "../syntax.js";
 
 export async function renderWord(app, { strong, en }) {
   const [entry, occ] = await Promise.all([data.lex(strong), data.occurrences(strong)]);
@@ -83,7 +83,7 @@ export async function renderWord(app, { strong, en }) {
     for (const o of list) {
       const key = mode === "gloss" ? occ.g[o[2]] || "—"
         : mode === "sense" ? occ.s[o[3]] || "(general)"
-        : mode === "role" ? FUNCTION[occ.r[o[4]]] || "(no syntactic role recorded)"
+        : mode === "role" ? roleName(occ.r[o[4]], isG) || "(no syntactic role recorded)"
         : o[0].split(".")[0];
       if (!map.has(key)) map.set(key, []);
       map.get(key).push(o);

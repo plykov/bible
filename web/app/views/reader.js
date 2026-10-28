@@ -3,7 +3,7 @@ import * as data from "../data.js";
 import { fill, h, store, save, surface, verseLinks } from "../util.js";
 import { openWord } from "../panel.js";
 import { DSS_LEGEND, findspot, renderDss, substantive } from "../dss.js";
-import { CLAUSE_KIND, CLAUSE_RELATION, CLAUSE_TYPE, FUNCTION, FUNCTION_GROUP, FUNCTION_SHORT, PHRASE_TYPE, textType } from "../syntax.js";
+import { CLAUSE_KIND, CLAUSE_RELATION, CLAUSE_TYPE, FUNCTION, FUNCTION_GROUP, FUNCTION_SHORT, GREEK_CLASS, GREEK_CLAUSE_ROLE, GREEK_ROLE, GREEK_ROLE_GROUP, GREEK_ROLE_SHORT, PHRASE_TYPE, ruleLabel, textType } from "../syntax.js";
 
 const DEFAULTS = { translit: true, gloss: true, strong: false, morph: false, lxx: false, dss: false, syntax: false, variants: true };
 
@@ -37,7 +37,7 @@ export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
     toggle("morph", "Grammar"), toggle("variants", "Variants"),
     ot && b.lxx ? toggle("lxx", "Septuagint") : null,
     ot && b.dss ? toggle("dss", "Dead Sea Scrolls") : null,
-    ot ? toggle("syntax", "Syntax (clauses & phrases)") : null,
+    toggle("syntax", ot ? "Syntax (clauses & phrases)" : "Syntax (clauses & roles)"),
   );
 
   function toggle(key, label) {
@@ -71,7 +71,7 @@ export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
   const verses = await data.chapter(b.id, ch);
   fill(body, ...verses.map((v) => renderVerse(b, ch, v, ot)));
   if (opts.lxx || opts.dss) loadParallels();
-  if (opts.syntax && ot) await applySyntax();
+  if (opts.syntax) await applySyntax();
 
   if (vs) {
     const el = body.querySelector(`[data-v="${vs}"]`);
@@ -102,11 +102,19 @@ export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
         btn.querySelector(".fn")?.remove();
         if (!ph) return;
         const [fn, ptyp] = ph;
-        btn.dataset.group = FUNCTION_GROUP[fn] || "other";
+        btn.dataset.group = (ot ? FUNCTION_GROUP : GREEK_ROLE_GROUP)[fn] || "other";
         btn.dataset.phrase = s.w[i];
-        btn.append(h("span", { class: "fn", title: `${FUNCTION[fn] || fn} · ${PHRASE_TYPE[ptyp] || ptyp}` }, FUNCTION_SHORT[fn] || fn));
+        const title = ot ? `${FUNCTION[fn] || fn} · ${PHRASE_TYPE[ptyp] || ptyp}` : `${GREEK_ROLE[fn] || fn} · ${GREEK_CLASS[ptyp] || ptyp}`;
+        btn.append(h("span", { class: "fn", title }, (ot ? FUNCTION_SHORT : GREEK_ROLE_SHORT)[fn] || fn));
       });
       const rows = s.a.map(([, , tab, typ, txt, rela, kind]) => {
+        if (!ot) {
+          // Greek: constituent order of the clause, and its role in the parent clause.
+          return h("div", { class: "clause", style: `--tab:${tab}` },
+            h("span", { class: "clabel", dir: "ltr", title: [`Clause: ${ruleLabel(typ)}`, rela && GREEK_CLAUSE_ROLE[rela] && `functions as ${GREEK_CLAUSE_ROLE[rela]}`].filter(Boolean).join(" · ") },
+              typ, rela && GREEK_CLAUSE_ROLE[rela] ? h("span", { class: "crel" }, ` · ${GREEK_CLAUSE_ROLE[rela]}`) : null),
+            h("div", { class: "cwords" }));
+        }
         const tt = textType(txt);
         return h("div", { class: "clause", style: `--tab:${tab}` },
           h("span", { class: "clabel", dir: "ltr", title: [CLAUSE_TYPE[typ], kind && `${CLAUSE_KIND[kind]} clause`, rela && rela !== "NA" && CLAUSE_RELATION[rela], tt && `text type: ${tt.path}`].filter(Boolean).join(" · ") },
@@ -115,15 +123,37 @@ export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
             rela && rela !== "NA" ? h("span", { class: "crel" }, ` · ${(CLAUSE_RELATION[rela] || rela).replace(/ clause$/, "")}`) : null),
           h("div", { class: "cwords" }));
       });
-      let row = 0;
-      buttons.forEach((btn, i) => {
-        const at = s.a.findIndex(([first, last]) => i + 1 >= first && i + 1 <= last);
-        if (at >= 0) row = at;  // unaligned words stay with the previous clause
-        rows[row]?.querySelector(".cwords").append(btn);
-      });
+      let layout = rows;
+      if (s.c) {
+        // Greek clauses nest: lay out runs of consecutive words of the same clause,
+        // so a clause resumed after an embedded one gets a continuation row.
+        layout = [];
+        let ci = s.c.find((c) => c >= 0) ?? -1;  // leading unaligned words join the first clause
+        if (ci < 0 || !rows.length) continue;
+        const seen = new Set();
+        buttons.forEach((btn, i) => {
+          const c = s.c[i] >= 0 ? s.c[i] : ci;  // unaligned words stay with the previous clause
+          if (c !== ci || !layout.length) {
+            if (!rows[c]) return;
+            const row = rows[c].cloneNode(true);
+            if (seen.has(c)) row.classList.add("cont");
+            seen.add(c);
+            layout.push(row);
+            ci = c;
+          }
+          layout[layout.length - 1].querySelector(".cwords").append(btn);
+        });
+      } else {
+        let row = 0;
+        buttons.forEach((btn, i) => {
+          const at = s.a.findIndex(([first, last]) => i + 1 >= first && i + 1 <= last);
+          if (at >= 0) row = at;  // unaligned words stay with the previous clause
+          rows[row]?.querySelector(".cwords").append(btn);
+        });
+      }
       el._words = buttons;
       wordsEl.hidden = true;
-      wordsEl.after(h("div", { class: "clauses", dir: "rtl" }, rows));
+      wordsEl.after(h("div", { class: "clauses", dir: ot ? "rtl" : "ltr" }, layout));
     }
   }
   function removeSyntax() {

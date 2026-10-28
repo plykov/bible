@@ -265,3 +265,6 @@ details.testament > summary { font-size: 1.05rem; }
 .word[data-group="frnt"] { --fncol: #a07a1a; } .word[data-group="frnt"] .fn { color: #a07a1a; }
 .word[data-group="other"] { --fncol: var(--line); }
 @media (max-width: 720px) { .clause { flex-direction: column; gap: 0; } .clause .clabel { width: auto; margin: 4px 0 0; } }
+.clause.cont .clabel { opacity: 0.55; }
+.clause.cont .clabel::before { content: "(cont.) "; }
+.nt .word .fn { direction: ltr; }

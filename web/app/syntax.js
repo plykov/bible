@@ -69,3 +69,27 @@ export function textType(txt) {
   const domain = TEXT[clean[clean.length - 1]];
   return { letter: clean[clean.length - 1], label: domain, path: [...clean].map((c) => TEXT[c]).join(" › ") };
 }
+
+// ---- MACULA Greek (New Testament) ----
+
+export const GREEK_ROLE = {
+  s: "Subject", v: "Verb", vc: "Copula (linking verb)", o: "Object", o2: "Second object",
+  io: "Indirect object", p: "Predicate (complement of the copula)", adv: "Adverbial", aux: "Auxiliary",
+};
+export const GREEK_ROLE_SHORT = { s: "Subj", v: "Verb", vc: "Copula", o: "Obj", o2: "Obj 2", io: "Ind.obj", p: "Pred", adv: "Adverbial", aux: "Aux" };
+export const GREEK_ROLE_GROUP = { v: "pred", vc: "pred", aux: "pred", s: "subj", o: "objc", o2: "objc", io: "cmpl", adv: "cmpl", p: "prec" };
+export const GREEK_CLASS = {
+  np: "noun phrase", vp: "verb phrase", pp: "prepositional phrase", adjp: "adjective phrase",
+  advp: "adverb phrase", cl: "clause", noun: "noun", verb: "verb", adj: "adjective", adv: "adverb",
+  pron: "pronoun", det: "article", prep: "preposition", conj: "conjunction", ptcl: "particle", num: "numeral",
+};
+const RULE_TOKEN = { S: "Subject", V: "Verb", VC: "Copula", P: "Predicate", O: "Object", O2: "Object 2", IO: "Ind. object", ADV: "Adverbial", AUX: "Aux" };
+// "P-VC-S" -> "Predicate – Copula – Subject" (the constituents in Greek word order)
+export const ruleLabel = (rule) => (rule || "").split("-").map((t) => RULE_TOKEN[t] || t).join(" – ");
+export const GREEK_CLAUSE_ROLE = {
+  s: "subject clause", o: "object clause", o2: "second-object clause", io: "indirect-object clause",
+  p: "predicate clause", adv: "adverbial clause", v: "verbal clause", aux: "auxiliary clause",
+};
+
+// Role name for an occurrence (Hebrew BHSA function or Greek MACULA role).
+export const roleName = (code, greek) => (greek ? GREEK_ROLE[code] : FUNCTION[code]) || null;

@@ -33,7 +33,8 @@
     "paths": [
       "SBLGNT/tsv/macula-greek-SBLGNT.tsv",
       "sources/MARBLE/SDBG/marble-domain-label-mapping.json",
-      "sources/Clear/synonyms/Proximity.tsv"
+      "sources/Clear/synonyms/Proximity.tsv",
+      "SBLGNT/lowfat/*.xml"
     ],
     "license": "CC BY 4.0 (Louw-Nida domain data used with permission of UBS)",
     "credit": "MACULA Greek Linguistic Datasets, Biblica / Clear Bible",

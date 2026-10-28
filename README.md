@@ -21,16 +21,21 @@ build step for the frontend: plain ES modules plus pre-built JSON shards.
     reconstructed letters are never counted. `#/dss` lists all 1,650 verses with substantive
     differences, by book. The rules live in `scripts/dss_compare.py`, with known cases in
     `scripts/test_dss_compare.py`.
-- **Syntax (ETCBC BHSA):** a switch lays each Hebrew Bible verse out clause by clause,
-  indented by the ETCBC text hierarchy and labelled with clause type (Wayyiqtol-X, nominal
-  clause …) and text type (Narrative / Quotation / Discourse). Every word is tagged and
-  colour-coded by phrase function: subject, predicate, object, complement, vocative …
+- **Syntax:** a switch lays each verse out clause by clause, with every word tagged and
+  colour-coded by its role:
+  - **Hebrew Bible (ETCBC BHSA):** indented by the ETCBC text hierarchy and labelled with clause
+    type (Wayyiqtol-X, nominal clause …) and text type (Narrative / Quotation / Discourse);
+    phrase functions: subject, predicate, object, complement, vocative …
+  - **New Testament (MACULA Greek):** clauses nested as subordinate clauses (object, adverbial,
+    subject clause …), labelled with constituent order (S-V-O, P-VC-S …); a clause resumed
+    after an embedded one gets a "(cont.)" row; roles: subject, verb, copula, object, indirect
+    object, predicate, adverbial.
 - **Word panel:** click any word for its morpheme breakdown, expanded grammar, syntactic
   role and clause, variants, dictionary entry and external study links.
 - **Word study:** abridged BDB or Abbott-Smith, full LSJ for Greek, and Jastrow/BDB/Klein from
   Sefaria for Hebrew and Aramaic. Shows how the word is translated, and every occurrence grouped
   by English rendering, sense, **syntactic role** (e.g. אֱלֹהִים: Subject 966×, Complement 562×,
-  Object 390×) or book, with verse snippets.
+  Object 390×; θεός: Subject 408×, Adverbial 336×, Object 310×) or book, with verse snippets.
 - **Search:**
   - an English word → every Hebrew/Aramaic/Greek word rendered that way, with counts and
     verse links (`love` → אָהַב, ἀγαπάω, ἀγάπη, φιλέω …)
@@ -88,6 +93,7 @@ scripts/build_data.py    TAHOT/TAGNT/lexicons/LXX/phrase index → web/data/*.js
 scripts/build_dss.py     Dead Sea Scrolls Text-Fabric → web/data/dss
 scripts/dss_compare.py   DSS ↔ Masoretic word alignment and classification
 scripts/build_bhsa.py    BHSA clauses/phrases aligned to TAHOT words → web/data/syntax
+scripts/build_greek_syntax.py MACULA Greek clause trees aligned to TAGNT words → web/data/syntax
 scripts/tf.py            minimal Text-Fabric reader (DSS, BHSA)
 scripts/build_related.py MACULA synonyms/domains/LXX pairs → web/data/rel, domains.json
 web/app/concepts.json    curated notes on well-known word sets (checked against the data)
@@ -118,7 +124,7 @@ Non-commercial study tool. See the in-app **Sources** page and
 - [x] Dead Sea Scrolls readings as verse parallels
 - [x] Word-level DSS ↔ Masoretic comparison and variant lists
 - [x] ETCBC BHSA clause and phrase data (syntax view, roles in word study)
-- [ ] MACULA Greek syntax for the New Testament (same view for Greek)
+- [x] MACULA Greek syntax for the New Testament
 - [ ] ETCBC Peshitta (Syriac OT)
 - [ ] Rahlfs LXX with morphology (requires the CCAT user declaration first)
 - [ ] CNTR / NTVMR early-manuscript readings for the NT

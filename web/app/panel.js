@@ -1,7 +1,7 @@
 // Side panel with details for a clicked word.
 import * as data from "./data.js";
 import { fill, h, langOf, morphParts, sanitize, studyLinks, surface } from "./util.js";
-import { CLAUSE_KIND, CLAUSE_RELATION, CLAUSE_TYPE, FUNCTION, PHRASE_TYPE, textType } from "./syntax.js";
+import { CLAUSE_KIND, CLAUSE_RELATION, CLAUSE_TYPE, FUNCTION, GREEK_CLASS, GREEK_CLAUSE_ROLE, GREEK_ROLE, PHRASE_TYPE, ruleLabel, textType } from "./syntax.js";
 
 const panel = () => document.getElementById("panel");
 
@@ -19,7 +19,7 @@ export async function openWord(el, { b, ch, vs, idx, w, ot }) {
   const p = panel();
   p.hidden = false;
   const lang = ot ? "heb" : "grk";
-  const [entry, morphTable, syntax] = await Promise.all([w.s ? data.lex(w.s) : null, data.morph(lang), ot ? data.syntaxChapter(b.id, ch) : null]);
+  const [entry, morphTable, syntax] = await Promise.all([w.s ? data.lex(w.s) : null, data.morph(lang), data.syntaxChapter(b.id, ch)]);
   const syn = syntaxInfo(syntax?.[vs], idx);
   const language = ot ? (w.m?.[0] === "A" ? "Aramaic" : "Hebrew") : "Greek";
 
@@ -59,7 +59,12 @@ export async function openWord(el, { b, ch, vs, idx, w, ot }) {
         h("a", { class: "btn primary", href: `#/w/${w.s}` }, "Full word study →"))
       : null,
     h("h4", {}, "Grammar"), h("ul", { class: "morph-list" }, morph),
-    syn ? h("div", { class: "syn" }, h("h4", {}, "Syntax (ETCBC BHSA)"),
+    syn && !ot ? h("div", { class: "syn" }, h("h4", {}, "Syntax (MACULA Greek)"),
+      h("ul", { class: "morph-list" },
+        syn.fn ? h("li", {}, h("strong", {}, GREEK_ROLE[syn.fn] || syn.fn), syn.ptyp && GREEK_CLASS[syn.ptyp] ? ` · ${GREEK_CLASS[syn.ptyp]}` : "") : null,
+        syn.clause ? h("li", {}, `Clause: ${ruleLabel(syn.clause.typ)}`,
+          GREEK_CLAUSE_ROLE[syn.clause.rela] ? ` · ${GREEK_CLAUSE_ROLE[syn.clause.rela]}` : "") : null)) : null,
+    syn && ot ? h("div", { class: "syn" }, h("h4", {}, "Syntax (ETCBC BHSA)"),
       h("ul", { class: "morph-list" },
         syn.fn ? h("li", {}, h("strong", {}, FUNCTION[syn.fn] || syn.fn), syn.ptyp ? ` · in a ${(PHRASE_TYPE[syn.ptyp] || syn.ptyp).toLowerCase()}` : "") : null,
         syn.clause ? h("li", {}, CLAUSE_TYPE[syn.clause.typ] || syn.clause.typ,
