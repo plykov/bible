@@ -58,6 +58,19 @@ build step for the frontend: plain ES modules plus pre-built JSON shards.
   - Hebrew or Greek (vowels and accents ignored), Strong's numbers (`H7225`), or references
     (`Jn 1:1`)
 
+## Install as an app (PWA)
+
+The site is a Progressive Web App: use "Install app" in the top bar (Chrome, Edge, Android) or
+Share → Add to Home Screen (Safari on iPhone/iPad).
+
+- **Offline:** the app shell is precached on first visit. Every chapter, dictionary entry and
+  index you open is kept and refreshed in the background (stale-while-revalidate). The
+  **Offline** page (`#/offline`) downloads whole sets in advance (Hebrew Bible text 38 MB, NT
+  text 13 MB, dictionaries, LSJ, occurrences, search, syntax, Dead Sea Scrolls, Septuagint;
+  about 143 MB in all), shows storage used, and requests persistent storage.
+- **Updates:** `scripts/build_pwa.py` writes the shell version into `web/sw.js`. After each
+  deploy the app shows "A new version is available — Reload"; downloaded data is kept.
+
 ## Run locally
 
 ```bash
@@ -66,6 +79,10 @@ python3 scripts/fetch_sources.py
 
 ```bash
 python3 scripts/build_data.py
+```
+
+```bash
+python3 scripts/build_pwa.py
 ```
 
 ```bash
@@ -97,6 +114,8 @@ scripts/build_greek_syntax.py MACULA Greek clause trees aligned to TAGNT words �
 scripts/tf.py            minimal Text-Fabric reader (DSS, BHSA)
 scripts/build_related.py MACULA synonyms/domains/LXX pairs → web/data/rel, domains.json
 web/app/concepts.json    curated notes on well-known word sets (checked against the data)
+scripts/build_pwa.py     precache list, offline sets, web/sw.js from scripts/sw.template.js
+web/manifest.webmanifest PWA manifest; web/icons/ app icons
 scripts/stem.py          English stemmer (mirrors web/app/stem.js)
 web/index.html           app shell
 web/app/                 main.js (router), data.js, search.js, panel.js, views/*

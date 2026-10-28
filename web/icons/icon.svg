@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#2f5d8a"/>
+  <rect x="96" y="120" width="320" height="272" rx="18" fill="#fbfaf7"/>
+  <line x1="256" y1="132" x2="256" y2="380" stroke="#2f5d8a" stroke-width="6"/>
+  <text x="176" y="292" font-family="Noto Serif Hebrew, serif" font-size="150" text-anchor="middle" fill="#2f5d8a">א</text>
+  <text x="336" y="290" font-family="Gentium Book Plus, Georgia, serif" font-size="150" text-anchor="middle" fill="#8a4f2f">α</text>
+</svg>

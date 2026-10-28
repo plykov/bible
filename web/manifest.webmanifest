@@ -1,0 +1,25 @@
+{
+  "name": "Interlinear Bible — Hebrew, Aramaic & Greek",
+  "short_name": "Interlinear",
+  "description": "Hebrew, Aramaic and Greek interlinear Bible with lexicons, textual variants, Dead Sea Scrolls, syntax and English-to-original word search.",
+  "start_url": "./",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fbfaf7",
+  "theme_color": "#2f5d8a",
+  "lang": "en",
+  "categories": ["books", "education", "reference"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "Read Genesis", "url": "./#/r/Gen.1" },
+    { "name": "Read John", "url": "./#/r/Jhn.1" },
+    { "name": "Dead Sea Scrolls variants", "url": "./#/dss" }
+  ]
+}

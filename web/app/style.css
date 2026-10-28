@@ -268,3 +268,12 @@ details.testament > summary { font-size: 1.05rem; }
 .clause.cont .clabel { opacity: 0.55; }
 .clause.cont .clabel::before { content: "(cont.) "; }
 .nt .word .fn { direction: ltr; }
+
+/* ---- PWA ---- */
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 50; display: flex; gap: 10px; align-items: center;
+  padding: 10px 16px; background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.15); max-width: calc(100% - 32px); }
+.is-offline .topbar { box-shadow: inset 0 -3px 0 var(--variant); }
+.is-offline .brand::after { content: " · offline"; color: var(--variant); font-weight: 400; font-size: 0.85rem; }
+.offline-sets td { vertical-align: middle; }
+.offline-sets progress { width: 140px; vertical-align: middle; margin-left: 6px; }
+.topnav .install { padding: 3px 10px; }

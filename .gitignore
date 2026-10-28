@@ -2,3 +2,5 @@
 web/data/
 __pycache__/
 node_modules/
+web/precache.json
+web/sw.js

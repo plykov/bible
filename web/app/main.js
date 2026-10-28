@@ -5,6 +5,8 @@ import { initStemmer } from "./stem.js";
 import { fill, h, parseRef, setBooks } from "./util.js";
 import { renderAbout } from "./views/about.js";
 import { renderDssVariants } from "./views/dss.js";
+import { renderOffline } from "./views/offline.js";
+import { initPwa } from "./pwa.js";
 import { renderReader } from "./views/reader.js";
 import { renderSearch } from "./views/search.js";
 import { renderWord } from "./views/word.js";
@@ -26,6 +28,8 @@ async function route() {
       await renderSearch(app, { q: params.q, scope: params.expand === "0" ? "direct" : params.scope });
     } else if (parts[0] === "dss") {
       await renderDssVariants(app, { book: parts[1] });
+    } else if (parts[0] === "offline") {
+      await renderOffline(app);
     } else if (parts[0] === "about") {
       await renderAbout(app);
     } else {
@@ -33,6 +37,16 @@ async function route() {
     }
   } catch (err) {
     console.error(err);
+    if (!navigator.onLine || err instanceof TypeError) {
+      // A network failure: this page's data hasn't been saved for offline use.
+      document.body.classList.add("is-offline");
+      fill(app, h("section", {},
+        h("h1", {}, "Not available offline yet"),
+        h("p", {}, "This page needs data that hasn’t been saved on this device. Everything you open while online is kept for next time; to have whole books or dictionaries ready in advance, use ",
+          h("a", { href: "#/offline" }, "Install & offline"), "."),
+        h("p", {}, h("button", { class: "btn", onclick: () => route() }, "Try again"))));
+      return;
+    }
     fill(app, h("section", {}, h("h1", {}, "Something went wrong"), h("p", {}, String(err.message || err))));
   }
 }
@@ -67,4 +81,5 @@ document.getElementById("searchForm").addEventListener("submit", (e) => {
   setBooks(books);
   window.addEventListener("hashchange", route);
   route();
+  initPwa();
 })();

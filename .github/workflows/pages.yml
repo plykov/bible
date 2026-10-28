@@ -40,6 +40,9 @@ jobs:
       - name: Build data
         run: python scripts/build_data.py
 
+      - name: Build PWA (service worker, precache list, offline sets)
+        run: python scripts/build_pwa.py
+
       - name: Test stemmer parity (Python vs JS)
         run: python scripts/test_stem.py
 
