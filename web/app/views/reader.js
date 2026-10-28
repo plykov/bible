@@ -1,9 +1,10 @@
-// Chapter reader: interlinear words, variant markers, Septuagint parallel.
+// Chapter reader: interlinear words, variant markers, Septuagint and Dead Sea Scrolls parallels.
 import * as data from "../data.js";
 import { fill, h, store, save, surface, verseLinks } from "../util.js";
 import { openWord } from "../panel.js";
+import { DSS_LEGEND, findspot, renderDss } from "../dss.js";
 
-const DEFAULTS = { translit: true, gloss: true, strong: false, morph: false, lxx: false, variants: true };
+const DEFAULTS = { translit: true, gloss: true, strong: false, morph: false, lxx: false, dss: false, variants: true };
 
 export async function renderReader(app, { book, ch, vs, w }) {
   const { books } = await data.books();
@@ -11,7 +12,7 @@ export async function renderReader(app, { book, ch, vs, w }) {
   ch = Math.min(Math.max(1, ch || 1), b.ch);
   const opts = { ...DEFAULTS, ...store("reader-opts", {}) };
   const ot = b.t === "OT";
-  let lxxLoaded = false;
+  const loaded = { lxx: false, dss: false };
 
   const nav = h("div", { class: "reader-nav" },
     h("select", { "aria-label": "Book", onchange: (e) => (location.hash = `#/r/${e.target.value}.1`) },
@@ -29,6 +30,7 @@ export async function renderReader(app, { book, ch, vs, w }) {
     toggle("translit", "Transliteration"), toggle("gloss", "English"), toggle("strong", "Strong's"),
     toggle("morph", "Grammar"), toggle("variants", "Variants"),
     ot && b.lxx ? toggle("lxx", "Septuagint") : null,
+    ot && b.dss ? toggle("dss", "Dead Sea Scrolls") : null,
   );
 
   function toggle(key, label) {
@@ -37,7 +39,7 @@ export async function renderReader(app, { book, ch, vs, w }) {
         opts[key] = e.target.checked;
         save("reader-opts", opts);
         applyOpts();
-        if (key === "lxx" && e.target.checked) loadParallels();
+        if ((key === "lxx" || key === "dss") && e.target.checked) loadParallels();
       } }), label);
   }
 
@@ -60,7 +62,7 @@ export async function renderReader(app, { book, ch, vs, w }) {
 
   const verses = await data.chapter(b.id, ch);
   fill(body, ...verses.map((v) => renderVerse(b, ch, v, ot)));
-  if (opts.lxx) loadParallels();
+  if (opts.lxx || opts.dss) loadParallels();
 
   if (vs) {
     const el = body.querySelector(`[data-v="${vs}"]`);
@@ -78,8 +80,27 @@ export async function renderReader(app, { book, ch, vs, w }) {
   } else window.scrollTo(0, 0);
 
   async function loadParallels() {
-    if (!opts.lxx || lxxLoaded || !b.lxx) return;
-    lxxLoaded = true;
+    if (opts.dss && !loaded.dss && b.dss) {
+      loaded.dss = true;
+      const dss = await data.dssChapter(b.id, ch);
+      let n = 0;
+      for (const el of body.querySelectorAll(".verse")) {
+        const rows = dss?.[el.dataset.v];
+        if (!rows) continue;
+        n++;
+        el.append(h("div", { class: "parallel dss" },
+          h("span", { class: "plabel" }, "DSS"),
+          h("div", { class: "dss-rows" }, rows.map(([scroll, frag, text]) => h("div", { class: "dss-row" },
+            h("span", { class: "scroll", title: [findspot(scroll), frag && `fragment/column ${frag}`].filter(Boolean).join(" · ") }, scroll),
+            h("span", { class: "dss-text", lang: "he", dir: "rtl" }, renderDss(text)))))));
+      }
+      body.prepend(h("p", { class: "note dss-note" },
+        `Dead Sea Scrolls: ${n} verse${n === 1 ? "" : "s"} in this chapter attested in the scrolls (consonantal text, Hebrew numbering mapped to English). Key: `,
+        DSS_LEGEND.map(([k, label]) => [h("span", { class: `dss-key ${k}` }, "אבג"), ` ${label}  `]),
+        "Hover a scroll name for where it was found. Data: ETCBC/CACCHT (M. Abegg transcriptions), CC BY-NC 4.0."));
+    }
+    if (!opts.lxx || loaded.lxx || !b.lxx) return;
+    loaded.lxx = true;
     const lxx = await data.lxxChapter(b.id, ch);
     for (const el of body.querySelectorAll(".verse")) {
       const words = lxx?.[el.dataset.v];

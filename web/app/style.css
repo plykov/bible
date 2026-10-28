@@ -114,7 +114,20 @@ select { font: inherit; padding: 6px; border-radius: 6px; border: 1px solid var(
 .parallel { display: flex; gap: 8px; margin-top: 6px; padding: 6px 8px; background: var(--surface); border-radius: 6px; border-left: 3px solid var(--line); }
 .parallel .plabel { font: 600 0.7rem var(--ui); color: var(--muted); text-transform: uppercase; padding-top: 4px; flex: none; }
 .parallel.lxx .ptext { font-family: var(--grk); font-size: 1.1rem; }
-.hide-lxx .parallel.lxx, .hide-lxx .lxx-note { display: none; }
+.hide-lxx .parallel.lxx, .hide-lxx .lxx-note, .hide-dss .parallel.dss, .hide-dss .dss-note { display: none; }
+.parallel.dss { border-left-color: var(--aramaic); }
+.dss-rows { flex: 1; display: grid; gap: 4px; }
+.dss-row { display: flex; gap: 10px; align-items: baseline; }
+.dss-row .scroll { flex: none; min-width: 4.5em; font: 0.75rem ui-monospace, monospace; color: var(--muted); border-bottom: 1px dotted var(--muted); cursor: help; }
+.dss-text { font-family: var(--heb); font-size: 1.2rem; line-height: 1.8; }
+.dss-text .rec, .dss-key.rec { opacity: 0.4; }
+.dss-text .unc, .dss-key.unc { text-decoration: underline dotted var(--variant); text-underline-offset: 6px; }
+.dss-text .del, .dss-key.del { text-decoration: line-through; color: var(--variant); }
+.dss-text .sup, .dss-key.sup { vertical-align: super; font-size: 0.75em; }
+.dss-text .cor, .dss-key.cor { text-decoration: underline var(--accent); text-underline-offset: 6px; }
+.dss-text .vac { font: italic 0.7rem var(--ui); color: var(--muted); }
+.dss-text .missing, .dss-text .eol { color: var(--muted); }
+.dss-key { font-family: var(--heb); }
 
 /* ---- side panel ---- */
 .panel {

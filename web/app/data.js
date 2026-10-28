@@ -23,6 +23,7 @@ export function bucket(strong) {
 export const books = () => getJSON("books.json");
 export const chapter = (book, ch) => getJSON(`text/${book}/${ch}.json`);
 export const lxxChapter = (book, ch) => getJSON(`lxx/${book}/${ch}.json`).catch(() => null);
+export const dssChapter = (book, ch) => getJSON(`dss/${book}/${ch}.json`).catch(() => null);
 export const lemmas = () => getJSON("lemmas.json");
 export const meta = () => getJSON("meta.json");
 export const morph = (lang) => getJSON(`morph/${lang}.json`);

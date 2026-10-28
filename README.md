@@ -9,7 +9,12 @@ build step for the frontend: plain ES modules plus pre-built JSON shards.
   English gloss, Strong's number and grammar. Aramaic words are marked.
 - **Textual variants:** OT Ketiv/Qere, Aleppo and BHS readings; NT readings across 8 editions
   (NA28, NA27, Tyndale House, SBL, Westcott-Hort, Tregelles, TR, Byzantine).
-- **Parallel:** Septuagint (Swete) under each verse of the Hebrew Bible.
+- **Parallels:** under each verse of the Hebrew Bible:
+  - the Septuagint (Swete);
+  - **Dead Sea Scrolls** readings from 262 scrolls (7,620 verses), each labelled with scroll,
+    fragment and findspot. Editorial signs are shown as styles: reconstructed letters faint,
+    uncertain dotted, scribal erasures struck through, supralinear raised. Try Isaiah 53:11
+    (אור "light" in 1QIsaᵃ) or Deuteronomy 32:8 (בני אלוהים in 4Q37).
 - **Word panel:** click any word for its morpheme breakdown, expanded grammar, variants,
   dictionary entry and external study links.
 - **Word study:** abridged BDB or Abbott-Smith, full LSJ for Greek, and Jastrow/BDB/Klein from
@@ -69,6 +74,7 @@ and the JavaScript stemmer (used in the browser) agree on every English gloss wo
 scripts/sources.json     upstream datasets pinned to commits
 scripts/fetch_sources.py sparse, shallow checkouts into .cache/sources
 scripts/build_data.py    TAHOT/TAGNT/lexicons/LXX/phrase index → web/data/*.json
+scripts/build_dss.py     Dead Sea Scrolls Text-Fabric → web/data/dss
 scripts/build_related.py MACULA synonyms/domains/LXX pairs → web/data/rel, domains.json
 web/app/concepts.json    curated notes on well-known word sets (checked against the data)
 scripts/stem.py          English stemmer (mirrors web/app/stem.js)
@@ -85,6 +91,7 @@ Non-commercial study tool. See the in-app **Sources** page and
 - **STEPBible Data** (TAHOT, TAGNT, TBESH, TBESG, TFLSJ, TEHMC/TEGMC): CC BY 4.0, Tyndale
   House Cambridge / www.STEPBible.org
 - **Swete LXX** (Eliran Wong): public-domain text, GPL-3.0 repository
+- **Dead Sea Scrolls** (ETCBC/CACCHT, Abegg transcriptions): CC BY-NC 4.0
 - **MACULA Hebrew & Greek** (Biblica / Clear Bible): CC BY 4.0; semantic domains used with
   permission of UBS
 - **Sefaria** (live): Jastrow, BDB and Klein dictionaries on the word-study page
@@ -93,7 +100,9 @@ Non-commercial study tool. See the in-app **Sources** page and
 
 - [x] MACULA semantic domains, synonyms and Hebrew↔LXX links (related words, meaning field)
 - [x] Curated concept notes (`web/app/concepts.json`): love, time, life, word, know
-- [ ] ETCBC Dead Sea Scrolls as verse parallels; ETCBC BHSA clause and phrase data
+- [x] Dead Sea Scrolls readings as verse parallels
+- [ ] Word-level DSS ↔ Masoretic comparison (highlight differing words)
+- [ ] ETCBC BHSA clause and phrase data
 - [ ] ETCBC Peshitta (Syriac OT)
 - [ ] Rahlfs LXX with morphology (requires the CCAT user declaration first)
 - [ ] CNTR / NTVMR early-manuscript readings for the NT

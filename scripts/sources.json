@@ -51,5 +51,27 @@
     "license": "CC BY 4.0 (SDBH domain data used with permission of UBS)",
     "credit": "MACULA Hebrew Linguistic Datasets, Biblica / Clear Bible",
     "url": "https://github.com/Clear-Bible/macula-hebrew"
+  },
+  "dss": {
+    "repo": "https://github.com/ETCBC/dss.git",
+    "commit": "dd29636120a89a91bf760bf349f07ce9dc3a2998",
+    "paths": [
+      "tf/2.0.2/otype.tf",
+      "tf/2.0.2/oslots.tf",
+      "tf/2.0.2/book.tf",
+      "tf/2.0.2/chapter.tf",
+      "tf/2.0.2/verse.tf",
+      "tf/2.0.2/biblical.tf",
+      "tf/2.0.2/full.tf",
+      "tf/2.0.2/glyph.tf",
+      "tf/2.0.2/scroll.tf",
+      "tf/2.0.2/fragment.tf",
+      "tf/2.0.2/after.tf",
+      "tf/2.0.2/lang.tf",
+      "tf/2.0.2/type.tf"
+    ],
+    "license": "CC BY-NC 4.0",
+    "credit": "ETCBC / CACCHT Dead Sea Scrolls (Abegg transcriptions), Text-Fabric 2.0.2",
+    "url": "https://github.com/ETCBC/dss"
   }
 }
