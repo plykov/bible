@@ -1,9 +1,9 @@
-// Chapter reader: interlinear words, variant markers, LXX + Targum parallels.
+// Chapter reader: interlinear words, variant markers, Septuagint parallel.
 import * as data from "../data.js";
 import { fill, h, store, save, surface, verseLinks } from "../util.js";
 import { openWord } from "../panel.js";
 
-const DEFAULTS = { translit: true, gloss: true, strong: false, morph: false, lxx: false, targum: false, variants: true };
+const DEFAULTS = { translit: true, gloss: true, strong: false, morph: false, lxx: false, variants: true };
 
 export async function renderReader(app, { book, ch, vs, w }) {
   const { books } = await data.books();
@@ -11,7 +11,7 @@ export async function renderReader(app, { book, ch, vs, w }) {
   ch = Math.min(Math.max(1, ch || 1), b.ch);
   const opts = { ...DEFAULTS, ...store("reader-opts", {}) };
   const ot = b.t === "OT";
-  const parallelsLoaded = { lxx: false, targum: false };
+  let lxxLoaded = false;
 
   const nav = h("div", { class: "reader-nav" },
     h("select", { "aria-label": "Book", onchange: (e) => (location.hash = `#/r/${e.target.value}.1`) },
@@ -29,7 +29,6 @@ export async function renderReader(app, { book, ch, vs, w }) {
     toggle("translit", "Transliteration"), toggle("gloss", "English"), toggle("strong", "Strong's"),
     toggle("morph", "Grammar"), toggle("variants", "Variants"),
     ot && b.lxx ? toggle("lxx", "Septuagint") : null,
-    ot && b.targum ? toggle("targum", "Targum (Aramaic)") : null,
   );
 
   function toggle(key, label) {
@@ -38,7 +37,7 @@ export async function renderReader(app, { book, ch, vs, w }) {
         opts[key] = e.target.checked;
         save("reader-opts", opts);
         applyOpts();
-        if ((key === "lxx" || key === "targum") && e.target.checked) loadParallels();
+        if (key === "lxx" && e.target.checked) loadParallels();
       } }), label);
   }
 
@@ -61,7 +60,7 @@ export async function renderReader(app, { book, ch, vs, w }) {
 
   const verses = await data.chapter(b.id, ch);
   fill(body, ...verses.map((v) => renderVerse(b, ch, v, ot)));
-  if (opts.lxx || opts.targum) loadParallels();
+  if (opts.lxx) loadParallels();
 
   if (vs) {
     const el = body.querySelector(`[data-v="${vs}"]`);
@@ -79,47 +78,18 @@ export async function renderReader(app, { book, ch, vs, w }) {
   } else window.scrollTo(0, 0);
 
   async function loadParallels() {
-    if (opts.lxx && !parallelsLoaded.lxx && b.lxx) {
-      parallelsLoaded.lxx = true;
-      const lxx = await data.lxxChapter(b.id, ch);
-      for (const el of body.querySelectorAll(".verse")) {
-        const words = lxx?.[el.dataset.v];
-        if (words) {
-          el.append(h("div", { class: "parallel lxx", lang: "grc" },
-            h("span", { class: "plabel" }, "LXX"),
-            h("span", { class: "ptext" }, words.map((x) => x[0]).join(" "))));
-        }
+    if (!opts.lxx || lxxLoaded || !b.lxx) return;
+    lxxLoaded = true;
+    const lxx = await data.lxxChapter(b.id, ch);
+    for (const el of body.querySelectorAll(".verse")) {
+      const words = lxx?.[el.dataset.v];
+      if (words) {
+        el.append(h("div", { class: "parallel lxx", lang: "grc" },
+          h("span", { class: "plabel" }, "LXX"),
+          h("span", { class: "ptext" }, words.map((x) => x[0]).join(" "))));
       }
-      body.prepend(h("p", { class: "note lxx-note" }, "Septuagint: Swete (1909–30), aligned by its own (LXX) verse numbers, which differ from the Hebrew in places, e.g. Psalms, Jeremiah, and parts of Exodus."));
     }
-    if (opts.targum && !parallelsLoaded.targum && b.targum) {
-      parallelsLoaded.targum = true;
-      // Sefaria uses Hebrew versification; each verse knows its Hebrew ref.
-      const need = new Set();
-      const map = [];
-      for (const el of body.querySelectorAll(".verse")) {
-        const [hc, hv] = (el.dataset.h || `${ch}.${el.dataset.v}`).split(".").map(Number);
-        need.add(hc);
-        map.push([el, hc, hv]);
-      }
-      const chapters = {};
-      await Promise.all([...need].map(async (c) => (chapters[c] = await data.sefariaChapter(b.targum, c).catch(() => null))));
-      let credit = null;
-      for (const [el, hc, hv] of map) {
-        const t = chapters[hc];
-        const text = t?.text?.[hv - 1];
-        if (!text) continue;
-        credit = t;
-        const tmp = document.createElement("div");
-        tmp.innerHTML = Array.isArray(text) ? text.join(" ") : text;
-        el.append(h("div", { class: "parallel targum", lang: "arc", dir: "rtl" },
-          h("span", { class: "plabel" }, "Targum"),
-          h("span", { class: "ptext" }, tmp.textContent)));
-      }
-      body.prepend(h("p", { class: "note" }, credit
-        ? `Targum: ${b.targum}, ${credit.title} (${credit.license || "licence not stated"}), loaded live from Sefaria.org.`
-        : "Targum could not be loaded from Sefaria."));
-    }
+    body.prepend(h("p", { class: "note lxx-note" }, "Septuagint: Swete (1909–30), aligned by its own (LXX) verse numbers, which differ from the Hebrew in places, e.g. Psalms, Jeremiah, and parts of Exodus."));
   }
 }
 
@@ -176,22 +146,4 @@ function nextHref(books, b, ch) {
   if (ch < b.ch) return `#/r/${b.id}.${ch + 1}`;
   const n = books[(books.indexOf(b) + 1) % books.length];
   return `#/r/${n.id}.1`;
-}
-
-export async function renderLxxBook(app, { book, ch }) {
-  const { lxxExtra } = await data.books();
-  const b = lxxExtra.find((x) => x.id === book);
-  if (!b) return fill(app, h("p", {}, "Unknown LXX book."));
-  ch = Math.min(Math.max(1, ch || 1), b.ch);
-  const verses = (await data.lxxChapter(b.id, ch)) || {};
-  fill(app, h("section", { class: "reader" },
-    h("h1", {}, `${b.name} ${ch}`, h("small", { class: "muted" }, " · Septuagint (Swete)")),
-    h("div", { class: "reader-nav" },
-      h("select", { onchange: (e) => (location.hash = `#/lxx/${b.id}.${e.target.value}`) },
-        Array.from({ length: b.ch }, (_, i) => h("option", { value: i + 1, selected: i + 1 === ch }, `Chapter ${i + 1}`)))),
-    h("p", { class: "note" }, "Untagged Greek text (no lemmas or glosses yet). Click a word to look it up in the lexicon."),
-    h("div", { class: "chapter lxx-only" },
-      Object.entries(verses).sort((a, b) => a[0] - b[0]).map(([n, words]) =>
-        h("div", { class: "verse" }, h("span", { class: "vnum" }, n), " ",
-          words.map(([g, x]) => h("a", { class: "lxx-word", href: `#/s?q=${encodeURIComponent(g.replace(/[^\p{L}]/gu, ""))}`, title: x }, g, " ")))))));
 }

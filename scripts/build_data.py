@@ -5,7 +5,7 @@ Run scripts/fetch_sources.py first. Output goes to web/data/ (git-ignored;
 GitHub Actions rebuilds it on every deploy).
 
 Layout produced:
-  books.json                      book list, chapter counts, Targum titles
+  books.json                      book list and chapter counts
   text/{Book}/{ch}.json           interlinear words per verse (OT: TAHOT, NT: TAGNT)
   lxx/{Book}/{ch}.json            Swete LXX words per verse
   lex/{H|G}{bucket}.json          brief lexicon + renderings + counts, 100 numbers per file
@@ -16,6 +16,8 @@ Layout produced:
   morph/{heb,grk}.json            morphology code expansions
   rel/{H|G}{bucket}.json          related words: synonyms, semantic domains, LXX equivalents
   domains.json                    semantic domain labels + member lemmas
+  phrase/verses.json              verse refs in canonical order (ids used by the phrase index)
+  phrase/{xx}.json                positional English index: stem -> delta-encoded [verse, pos, word]
   meta.json                       build info + source commits (for the credits page)
 """
 import html
@@ -28,7 +30,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from books import BOOKS, LXX_EXTRA, SWETE_BOOKS  # noqa: E402
+from books import BOOKS, SWETE_BOOKS  # noqa: E402
 import build_related  # noqa: E402
 from stem import stem, tokens  # noqa: E402
 
@@ -38,6 +40,7 @@ STEP = SRC / "stepbible"
 OUT = ROOT / "web" / "data"
 
 BOOK_CODES = {b[0] for b in BOOKS}
+OT_CODES = {b[0] for b in BOOKS if b[2] == "OT"}
 ALL_EDITIONS = "NA28+NA27+Tyn+SBL+WH+Treg+TR+Byz"
 
 # Matches TAHOT/TAGNT word rows, e.g. "Mal.4.1(3.19)#01=L" or "Act.2.11[2.10]#01=NKO"
@@ -366,6 +369,48 @@ def build_nt(col, resolve, chapters):
     return stats
 
 
+ARTICLES = {"the", "a", "an"}
+
+
+def phrase_tokens(gloss):
+    """English tokens of one word's gloss for the phrase index: <untranslated>
+    parts dropped, [implied] words kept, articles dropped (the query drops them too)."""
+    g = re.sub(r"<[^>]*>", " ", gloss).replace("[", " ").replace("]", " ")
+    return [stem(t) for t in tokens(g) if t not in ARTICLES]
+
+
+def build_phrase_index(chapters):
+    """Positional index over the interlinear English, for exact short-phrase search.
+    Each posting is (verse id, token position in verse, word number); per stem the
+    list is flattened and verse ids are delta-encoded to keep the JSON small."""
+    order = {code: i for i, (code, _, _) in enumerate(BOOKS)}
+    refs, postings = [], defaultdict(list)
+    ot_count = 0
+    for (book, ch), verses in sorted(chapters.items(), key=lambda x: (order[x[0][0]], x[0][1])):
+        for n, v in sorted(verses.items()):
+            vid = len(refs)
+            refs.append(f"{book}.{ch}.{n}")
+            if book in OT_CODES:
+                ot_count = vid + 1
+            pos = 0
+            for wi, w in enumerate(v["w"], 1):
+                for st in phrase_tokens(w["g"]):
+                    postings[st].append((vid, pos, wi))
+                    pos += 1
+    shards = defaultdict(dict)
+    for st, plist in postings.items():
+        flat, prev = [], 0
+        for vid, pos, wi in plist:
+            flat += [vid - prev, pos, wi]
+            prev = vid
+        shards[(st + "_")[:2]][st] = flat
+    write_json(OUT / "phrase" / "verses.json", {"refs": refs, "ot": ot_count})
+    for p, entries in shards.items():
+        write_json(OUT / "phrase" / f"{p}.json", entries)
+    print(f"phrase index: {len(refs)} verses, {len(postings)} stems, "
+          f"{sum(len(p) for p in postings.values())} tokens")
+
+
 def build_lxx():
     base = SRC / "swete"
     if not base.exists():
@@ -386,7 +431,9 @@ def build_lxx():
         end = starts[n + 1][0] if n + 1 < len(starts) else max_i + 1
         bk, cv = ref.split(".", 1)
         ch, vs = cv.split(":")
-        code = SWETE_BOOKS.get(bk, bk)
+        code = SWETE_BOOKS.get(bk)
+        if not code:  # deuterocanonical / additional books: not used for now
+            continue
         chapters[(code, int(ch))][int(vs)] = [words[i] for i in range(start, end) if i in words]
     for (code, ch), verses in chapters.items():
         write_json(OUT / "lxx" / code / f"{ch}.json", verses)
@@ -423,14 +470,13 @@ def main():
                    [{"n": n, **v} for n, v in sorted(verses.items())])
         chapter_counts[book] = max(chapter_counts[book], ch)
 
+    build_phrase_index(chapters)
     lxx_books = build_lxx()
 
     books = [{"id": code, "name": name, "t": t, "ch": chapter_counts.get(code, 0),
-              "targum": targum, "lxx": lxx_books.get(SWETE_BOOKS.get(code, code), 0) if t == "OT" else 0}
-             for code, name, t, targum in BOOKS]
-    extra = [{"id": code, "name": name, "ch": lxx_books.get(code, 0)}
-             for code, name in LXX_EXTRA.items() if lxx_books.get(code)]
-    write_json(OUT / "books.json", {"books": books, "lxxExtra": extra})
+              "lxx": lxx_books.get(code, 0) if t == "OT" else 0}
+             for code, name, t in BOOKS]
+    write_json(OUT / "books.json", {"books": books})
 
     # Lexicon shards (only keys we have) + rendering stats
     shards = defaultdict(dict)

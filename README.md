@@ -9,8 +9,7 @@ build step for the frontend: plain ES modules plus pre-built JSON shards.
   English gloss, Strong's number and grammar. Aramaic words are marked.
 - **Textual variants:** OT Ketiv/Qere, Aleppo and BHS readings; NT readings across 8 editions
   (NA28, NA27, Tyndale House, SBL, Westcott-Hort, Tregelles, TR, Byzantine).
-- **Parallels:** Septuagint (Swete) and the Aramaic Targum (live from Sefaria, aligned through
-  Hebrew verse numbers).
+- **Parallel:** Septuagint (Swete) under each verse of the Hebrew Bible.
 - **Word panel:** click any word for its morpheme breakdown, expanded grammar, variants,
   dictionary entry and external study links.
 - **Word study:** abridged BDB or Abbott-Smith, full LSJ for Greek, and Jastrow/BDB/Klein from
@@ -26,8 +25,12 @@ build step for the frontend: plain ES modules plus pre-built JSON shards.
     the texts.
   - tick any set of words → all their verses, plus the verses where two or more occur together
     (e.g. ἀγαπάω + φιλέω → John 21:15–16)
-  - an English phrase → verses where the original words occur together (`word of God`),
-    optionally widened with close synonyms
+  - short phrases across both testaments (`in Christ`, `mercy and love`, `spirit of God`):
+    - exact wording in the word-for-word English, via a positional index, with an "original
+      words behind it" breakdown (`in Christ` → ἐν + Χριστός ×83)
+    - by meaning: the original words for each term close together, widened with close
+      synonyms and Septuagint equivalents (`mercy and love` → חֶסֶד + אָהֵב, רַחֲמִים + חֶסֶד,
+      ἔλεος + ἀγάπη), with Hebrew Bible / New Testament counts
   - Hebrew or Greek (vowels and accents ignored), Strong's numbers (`H7225`), or references
     (`Jn 1:1`)
 
@@ -62,7 +65,7 @@ and the JavaScript stemmer (used in the browser) agree on every English gloss wo
 ```
 scripts/sources.json     upstream datasets pinned to commits
 scripts/fetch_sources.py sparse, shallow checkouts into .cache/sources
-scripts/build_data.py    TAHOT/TAGNT/lexicons/LXX → web/data/*.json
+scripts/build_data.py    TAHOT/TAGNT/lexicons/LXX/phrase index → web/data/*.json
 scripts/build_related.py MACULA synonyms/domains/LXX pairs → web/data/rel, domains.json
 web/app/concepts.json    curated notes on well-known word sets (checked against the data)
 scripts/stem.py          English stemmer (mirrors web/app/stem.js)
@@ -81,12 +84,12 @@ Non-commercial study tool. See the in-app **Sources** page and
 - **Swete LXX** (Eliran Wong): public-domain text, GPL-3.0 repository
 - **MACULA Hebrew & Greek** (Biblica / Clear Bible): CC BY 4.0; semantic domains used with
   permission of UBS
-- **Sefaria** (live): Targumim and dictionaries; each text carries its own licence
+- **Sefaria** (live): Jastrow, BDB and Klein dictionaries on the word-study page
 
 ## Roadmap
 
 - [x] MACULA semantic domains, synonyms and Hebrew↔LXX links (related words, meaning field)
-- [ ] More curated concept notes (`web/app/concepts.json`): time, life, word, know, power
+- [x] Curated concept notes (`web/app/concepts.json`): love, time, life, word, know
 - [ ] ETCBC Dead Sea Scrolls as verse parallels; ETCBC BHSA clause and phrase data
 - [ ] ETCBC Peshitta (Syriac OT)
 - [ ] Rahlfs LXX with morphology (requires the CCAT user declaration first)

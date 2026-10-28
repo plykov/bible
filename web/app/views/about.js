@@ -3,7 +3,7 @@ import * as data from "../data.js";
 import { fill, h } from "../util.js";
 
 const LIVE = [
-  ["Sefaria", "https://www.sefaria.org", "Targum Onkelos, Targum Jonathan and the Writings Targumim; Jastrow, BDB and Klein dictionaries. Loaded live; each text shows its own licence (public domain, CC BY-NC, …)."],
+  ["Sefaria", "https://www.sefaria.org", "Jastrow, BDB and Klein dictionaries on the word-study page, loaded live."],
 ];
 
 const PLANNED = [

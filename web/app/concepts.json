@@ -4,18 +4,588 @@
     "title": "Words for “love”: the commonly cited Greek list, checked against the texts",
     "intro": "Popular teaching often lists eight Greek “types of love”. Only some are biblical words, and several are modern coinages: the love-style terms pragma, ludus and mania come from J. A. Lee’s 1973 typology, not from ancient usage. Each entry below says where the word is actually attested.",
     "items": [
-      { "label": "agapē / agapaō", "strongs": ["G0026", "G0025"], "where": ["nt", "lxx"], "note": "The main New Testament words for love (ἀγάπη 116×, ἀγαπάω 143×). In the Septuagint ἀγαπάω translates Hebrew אָהֵב far more than any other word does, so it is not limited to “divine” love." },
-      { "label": "phileō / philia / philos", "strongs": ["G5368", "G5373", "G5384"], "where": ["nt", "lxx"], "note": "Affection and friendship. φιλέω 25× (also “to kiss”); φιλία only at James 4:4 in the NT but frequent in LXX Proverbs and 1 Maccabees; φίλος “friend” 29×." },
-      { "label": "erōs / eraō", "strongs": ["G7513", "G7493"], "where": ["lxx"], "note": "Desire or passion. Never in the New Testament. In the Septuagint ἔρως occurs only at Proverbs 7:18 and Proverbs 24:51 (Hebrew 30:16); the related ἐραστής “lover” is used for Israel’s unfaithfulness in Hosea 2 and Ezekiel 16 and 23.", "refs": [["Prov 7:18", "r/Pro.7.18"], ["Hos 2:5", "r/Hos.2.5"], ["Ezek 23:5", "r/Ezk.23.5"]] },
-      { "label": "storgē", "strongs": ["G0794", "G5387"], "where": ["lxx", "nt"], "note": "Family affection. The noun στοργή is not in the NT; it appears only in 3 Maccabees 5:32 and 4 Maccabees 14:13–17. The NT has its compounds: ἄστοργος “without natural affection” (Rom 1:31; 2 Tim 3:3) and φιλόστοργος “devoted” (Rom 12:10).", "refs": [["4 Macc 14:13", "lxx/4Ma.14"], ["Rom 12:10", "r/Rom.12.10"]] },
-      { "label": "philautia (self-love)", "strongs": ["G5367"], "where": ["nt"], "note": "The noun φιλαυτία occurs nowhere in the Bible. The adjective φίλαυτος “lovers of self” appears once, at 2 Timothy 3:2, as a vice.", "refs": [["2 Tim 3:2", "r/2Ti.3.2"]] },
-      { "label": "pragma", "strongs": ["G4229"], "where": ["nt"], "note": "Not a word for love: πρᾶγμα means “matter, deed, thing” (11× in the NT). “Pragma” as enduring love is a modern psychology term." },
-      { "label": "mania", "strongs": ["G3130"], "where": ["nt"], "note": "Not a word for love: μανία means “madness” (Acts 26:24, Festus to Paul). “Mania” as obsessive love is a modern psychology term." },
-      { "label": "ludus", "strongs": [], "where": ["none"], "note": "Latin, not Greek (“game, play”). A modern love-style term with no biblical counterpart." },
-      { "label": "Hebrew: ’āhēḇ / ’ahăḇāh", "strongs": ["H0157G", "H0160"], "where": ["ot"], "note": "The broad Hebrew word for love (verb and noun), used of God, people, friends, spouses and things. The Septuagint renders it almost always with ἀγαπάω." },
-      { "label": "Hebrew: ḥeseḏ", "strongs": ["H2617A"], "where": ["ot"], "note": "Loyal, covenant kindness (245×), often translated “steadfast love” or “lovingkindness”. The Septuagint renders it with ἔλεος “mercy”." },
-      { "label": "Hebrew: raḥămîm / rāḥam", "strongs": ["H7356B", "H7355"], "where": ["ot"], "note": "Compassion. Related to רֶחֶם “womb”, i.e. tender, motherly love." },
-      { "label": "Hebrew: dôḏ, yāḏîḏ, ḥāšaq, ‘āḡaḇ", "strongs": ["H1730H", "H3039A", "H2836A", "H5689"], "where": ["ot"], "note": "Beloved / love-making (frequent in the Song of Songs), dear one, attached desire, and lustful desire (Ezekiel 23)." }
+      {
+        "label": "agapē / agapaō",
+        "strongs": [
+          "G0026",
+          "G0025"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "The main New Testament words for love (ἀγάπη 116×, ἀγαπάω 143×). In the Septuagint ἀγαπάω translates Hebrew אָהֵב far more than any other word does, so it is not limited to “divine” love."
+      },
+      {
+        "label": "phileō / philia / philos",
+        "strongs": [
+          "G5368",
+          "G5373",
+          "G5384"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "Affection and friendship. φιλέω 25× (also “to kiss”); φιλία only at James 4:4 in the NT but frequent in LXX Proverbs and 1 Maccabees; φίλος “friend” 29×."
+      },
+      {
+        "label": "erōs / eraō",
+        "strongs": [
+          "G7513",
+          "G7493"
+        ],
+        "where": [
+          "lxx"
+        ],
+        "note": "Desire or passion. Never in the New Testament. In the Septuagint ἔρως occurs only at Proverbs 7:18 and Proverbs 24:51 (Hebrew 30:16); the related ἐραστής “lover” is used for Israel’s unfaithfulness in Hosea 2 and Ezekiel 16 and 23.",
+        "refs": [
+          [
+            "Prov 7:18",
+            "r/Pro.7.18"
+          ],
+          [
+            "Hos 2:5",
+            "r/Hos.2.5"
+          ],
+          [
+            "Ezek 23:5",
+            "r/Ezk.23.5"
+          ]
+        ]
+      },
+      {
+        "label": "storgē",
+        "strongs": [
+          "G0794",
+          "G5387"
+        ],
+        "where": [
+          "lxx",
+          "nt"
+        ],
+        "note": "Family affection. The noun στοργή is not in the NT; it appears only in 3 Maccabees 5:32 and 4 Maccabees 14:13–17. The NT has its compounds: ἄστοργος “without natural affection” (Rom 1:31; 2 Tim 3:3) and φιλόστοργος “devoted” (Rom 12:10).",
+        "refs": [
+          [
+            "Rom 1:31",
+            "r/Rom.1.31"
+          ],
+          [
+            "Rom 12:10",
+            "r/Rom.12.10"
+          ]
+        ]
+      },
+      {
+        "label": "philautia (self-love)",
+        "strongs": [
+          "G5367"
+        ],
+        "where": [
+          "nt"
+        ],
+        "note": "The noun φιλαυτία occurs nowhere in the Bible. The adjective φίλαυτος “lovers of self” appears once, at 2 Timothy 3:2, as a vice.",
+        "refs": [
+          [
+            "2 Tim 3:2",
+            "r/2Ti.3.2"
+          ]
+        ]
+      },
+      {
+        "label": "pragma",
+        "strongs": [
+          "G4229"
+        ],
+        "where": [
+          "nt"
+        ],
+        "note": "Not a word for love: πρᾶγμα means “matter, deed, thing” (11× in the NT). “Pragma” as enduring love is a modern psychology term."
+      },
+      {
+        "label": "mania",
+        "strongs": [
+          "G3130"
+        ],
+        "where": [
+          "nt"
+        ],
+        "note": "Not a word for love: μανία means “madness” (Acts 26:24, Festus to Paul). “Mania” as obsessive love is a modern psychology term."
+      },
+      {
+        "label": "ludus",
+        "strongs": [],
+        "where": [
+          "none"
+        ],
+        "note": "Latin, not Greek (“game, play”). A modern love-style term with no biblical counterpart."
+      },
+      {
+        "label": "Hebrew: ’āhēḇ / ’ahăḇāh",
+        "strongs": [
+          "H0157G",
+          "H0160"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "The broad Hebrew word for love (verb and noun), used of God, people, friends, spouses and things. The Septuagint renders it almost always with ἀγαπάω."
+      },
+      {
+        "label": "Hebrew: ḥeseḏ",
+        "strongs": [
+          "H2617A"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Loyal, covenant kindness (245×), often translated “steadfast love” or “lovingkindness”. The Septuagint renders it with ἔλεος “mercy”."
+      },
+      {
+        "label": "Hebrew: raḥămîm / rāḥam",
+        "strongs": [
+          "H7356B",
+          "H7355"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Compassion. Related to רֶחֶם “womb”, i.e. tender, motherly love."
+      },
+      {
+        "label": "Hebrew: dôḏ, yāḏîḏ, ḥāšaq, ‘āḡaḇ",
+        "strongs": [
+          "H1730H",
+          "H3039A",
+          "H2836A",
+          "H5689"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Beloved / love-making (frequent in the Song of Songs), dear one, attached desire, and lustful desire (Ezekiel 23)."
+      }
+    ]
+  },
+  "time": {
+    "title": "Words for “time”: chronos, kairos and the Hebrew behind them",
+    "intro": "Popular teaching contrasts chronos (“clock time”) with kairos (“God’s moment”). The words do lean that way, but the contrast is often overstated (James Barr, Biblical Words for Time, 1962): Galatians 4:4 “the fullness of time” uses chronos, and Acts 1:7 and 1 Thessalonians 5:1 pair the two words as near-synonyms (“times and seasons”).",
+    "items": [
+      {
+        "label": "chronos",
+        "strongs": [
+          "G5550"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "Time as duration or a period (54×). Also used for God’s appointed moment: “when the fullness of time (χρόνου) had come” (Gal 4:4).",
+        "refs": [
+          [
+            "Gal 4:4",
+            "r/Gal.4.4"
+          ],
+          [
+            "Acts 1:7",
+            "r/Act.1.7"
+          ]
+        ]
+      },
+      {
+        "label": "kairos",
+        "strongs": [
+          "G2540"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "A fitting or set time, a season (86×). Not only “God’s moment”: it is also ordinary seasons, e.g. “the time of harvest” (Matt 13:30). In the Septuagint it renders Hebrew עֵת 186×.",
+        "refs": [
+          [
+            "Matt 13:30",
+            "r/Mat.13.30"
+          ],
+          [
+            "1 Thess 5:1",
+            "r/1Th.5.1"
+          ]
+        ]
+      },
+      {
+        "label": "hōra",
+        "strongs": [
+          "G5610"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "Hour, a short time (108×). In John, “the hour” is Jesus’ glorification through his death (e.g. John 12:23).",
+        "refs": [
+          [
+            "John 12:23",
+            "r/Jhn.12.23"
+          ]
+        ]
+      },
+      {
+        "label": "aiōn",
+        "strongs": [
+          "G0165G",
+          "G0165H"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "Age, era; “forever” in the phrase εἰς τὸν αἰῶνα (129× across its two senses). The Septuagint uses it for Hebrew עוֹלָם 308×."
+      },
+      {
+        "label": "Hebrew: ʿēt",
+        "strongs": [
+          "H6256"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Time, season, occasion (296×). The “a time to be born and a time to die” poem of Ecclesiastes 3 uses it throughout.",
+        "refs": [
+          [
+            "Eccl 3:1",
+            "r/Ecc.3.1"
+          ]
+        ]
+      },
+      {
+        "label": "Hebrew: môʿēḏ",
+        "strongs": [
+          "H4150G",
+          "H4150H"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Appointed time and appointed festival (Gen 1:14 “for appointed times”); the same word gives “tent of meeting”.",
+        "refs": [
+          [
+            "Gen 1:14",
+            "r/Gen.1.14"
+          ]
+        ]
+      },
+      {
+        "label": "Hebrew: ʿôlām",
+        "strongs": [
+          "H5769G"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Long or unending duration, “forever”, “of old” (388× in this sense)."
+      },
+      {
+        "label": "Hebrew / Aramaic: zᵊmān",
+        "strongs": [
+          "H2165",
+          "H2166"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Appointed time: Hebrew in late books (Eccl 3:1), Aramaic in Daniel (10×) and Ezra."
+      }
+    ]
+  },
+  "life": {
+    "title": "Words for “life”: zōē, bios, psychē and the Hebrew behind them",
+    "intro": "A common teaching says zōē is God’s kind of life, bios is merely biological life, and psychē is “soul-life”. The words do differ in emphasis, but each is used more broadly: zōē also means an ordinary lifetime (Luke 16:25), bios mostly means livelihood or goods, and psychē is often simply someone’s life (John 10:11).",
+    "items": [
+      {
+        "label": "zōē",
+        "strongs": [
+          "G2222"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "Life (136×), very often “eternal life”, but also physical life and a lifetime: “in your lifetime” (Luke 16:25), God “gives to all life and breath” (Acts 17:25). Septuagint for Hebrew חַיִּים.",
+        "refs": [
+          [
+            "Luke 16:25",
+            "r/Luk.16.25"
+          ],
+          [
+            "Acts 17:25",
+            "r/Act.17.25"
+          ]
+        ]
+      },
+      {
+        "label": "bios",
+        "strongs": [
+          "G0979"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "Manner of life or means of living (11×): the widow gave “her whole livelihood” (Mark 12:44), “property” (Luke 15:12), “goods” (1 John 3:17), “a quiet life” (1 Tim 2:2).",
+        "refs": [
+          [
+            "Mark 12:44",
+            "r/Mrk.12.44"
+          ],
+          [
+            "1 John 3:17",
+            "r/1Jn.3.17"
+          ]
+        ]
+      },
+      {
+        "label": "psychē",
+        "strongs": [
+          "G5590G",
+          "G5590H",
+          "G5590I",
+          "G5590J"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "Soul, life, self, person. The good shepherd “lays down his life (ψυχή)” (John 10:11); “whoever would save his life” (Matt 16:25). The Septuagint uses it for Hebrew נֶפֶשׁ 644×.",
+        "refs": [
+          [
+            "John 10:11",
+            "r/Jhn.10.11"
+          ],
+          [
+            "Matt 16:25",
+            "r/Mat.16.25"
+          ]
+        ]
+      },
+      {
+        "label": "Hebrew: ḥayyîm / ḥay",
+        "strongs": [
+          "H2416E",
+          "H2416A"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Life (plural noun, 145×) and living/alive (242×): “the breath of life” and “a living creature” in Gen 2:7.",
+        "refs": [
+          [
+            "Gen 2:7",
+            "r/Gen.2.7"
+          ]
+        ]
+      },
+      {
+        "label": "Hebrew: nep̄eš",
+        "strongs": [
+          "H5315G",
+          "H5315H",
+          "H5315I",
+          "H5315J",
+          "H5315L"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Throat/breath → living being, life, self, person, appetite (about 750× across its senses). Adam “became a living nep̄eš” (Gen 2:7): not a soul he has but the living person he is."
+      }
+    ]
+  },
+  "word": {
+    "title": "Words for “word”: logos, rhēma and Hebrew dāḇār",
+    "intro": "A popular teaching says logos is the written Word and rhēma a personal word spoken for today. The texts don’t support a sharp line: 1 Peter 1:23 calls God’s word logos and 1:25 calls the same word rhēma, and the Septuagint translates the one Hebrew word דָּבָר with both (λόγος 668×, ῥῆμα 257×).",
+    "items": [
+      {
+        "label": "logos",
+        "strongs": [
+          "G3056"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "Word, message, account, reason (332×); “In the beginning was the Word” (John 1:1).",
+        "refs": [
+          [
+            "John 1:1",
+            "r/Jhn.1.1"
+          ],
+          [
+            "1 Pet 1:23",
+            "r/1Pe.1.23"
+          ]
+        ]
+      },
+      {
+        "label": "rhēma",
+        "strongs": [
+          "G4487"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "Saying, utterance (71×), used of Scripture and the gospel (Rom 10:17; Eph 6:17 “the sword of the Spirit, which is the word of God”). Like Hebrew dāḇār it can also mean “thing, matter”: “no ῥῆμα is impossible with God” (Luke 1:37), “let us see this thing” (Luke 2:15).",
+        "refs": [
+          [
+            "1 Pet 1:25",
+            "r/1Pe.1.25"
+          ],
+          [
+            "Eph 6:17",
+            "r/Eph.6.17"
+          ],
+          [
+            "Luke 1:37",
+            "r/Luk.1.37"
+          ]
+        ]
+      },
+      {
+        "label": "Hebrew: dāḇār",
+        "strongs": [
+          "H1697G",
+          "H1697H"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Word, speech, matter, thing, event (over 900×). The Septuagint renders it λόγος 668×, ῥῆμα 257× and πρᾶγμα 26×."
+      },
+      {
+        "label": "Hebrew: ʾōmer / ʾimrāh",
+        "strongs": [
+          "H0561",
+          "H0565A"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Saying, utterance; ʾimrāh occurs 19× in Psalm 119 alone (“your word”)."
+      },
+      {
+        "label": "Aramaic: millāh",
+        "strongs": [
+          "H4406"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "Word, matter (24×), in the Aramaic of Daniel."
+      }
+    ]
+  },
+  "know": {
+    "title": "Words for “know”: ginōskō, oida and Hebrew yāḏaʿ",
+    "intro": "A common teaching says ginōskō is knowledge gained by experience and oida is intuitive or complete knowledge. The words can lean that way, but they are often interchangeable, sometimes in the same verse: Peter says “you know (οἶδας) all things; you know (γινώσκεις) that I love you” (John 21:17); see also 1 John 2:29 and John 8:55.",
+    "items": [
+      {
+        "label": "ginōskō",
+        "strongs": [
+          "G1097"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "To know, come to know, recognise (223×). Like Hebrew yāḏaʿ it is also used of sexual union: Joseph “knew her not” (Matt 1:25). The Septuagint uses it for יָדַע 459×.",
+        "refs": [
+          [
+            "Matt 1:25",
+            "r/Mat.1.25"
+          ],
+          [
+            "John 21:17",
+            "r/Jhn.21.17"
+          ]
+        ]
+      },
+      {
+        "label": "oida",
+        "strongs": [
+          "G6063"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "To know (286×), a perfect form of “to see” (εἴδω). Used beside ginōskō with little difference in John 21:17 and 1 John 2:29.",
+        "refs": [
+          [
+            "1 John 2:29",
+            "r/1Jn.2.29"
+          ],
+          [
+            "John 8:55",
+            "r/Jhn.8.55"
+          ]
+        ]
+      },
+      {
+        "label": "epiginōskō / epignōsis",
+        "strongs": [
+          "G1921",
+          "G1922"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "To recognise / knowledge (44× / 20×). Often taught as “full knowledge”, but the prefix doesn’t always intensify: on the Emmaus road the disciples’ eyes were kept from recognising him, then “they recognised (ἐπέγνωσαν) him” (Luke 24:16, 31).",
+        "refs": [
+          [
+            "Luke 24:31",
+            "r/Luk.24.31"
+          ]
+        ]
+      },
+      {
+        "label": "gnōsis",
+        "strongs": [
+          "G1108"
+        ],
+        "where": [
+          "nt",
+          "lxx"
+        ],
+        "note": "Knowledge (29×), prominent in 1 Corinthians (“knowledge puffs up, but love builds up”, 8:1)."
+      },
+      {
+        "label": "Hebrew: yāḏaʿ",
+        "strongs": [
+          "H3045"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "To know, perceive, be acquainted with, care for (945×), including intimate knowledge: “Adam knew Eve” (Gen 4:1). Septuagint γινώσκω 459×, εἴδω/οἶδα 171×.",
+        "refs": [
+          [
+            "Gen 4:1",
+            "r/Gen.4.1"
+          ]
+        ]
+      },
+      {
+        "label": "Aramaic: yᵊḏaʿ",
+        "strongs": [
+          "H3046"
+        ],
+        "where": [
+          "ot"
+        ],
+        "note": "To know (47×), in Daniel and Ezra."
+      }
     ]
   }
 }

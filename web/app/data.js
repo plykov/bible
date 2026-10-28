@@ -50,22 +50,8 @@ export async function verse(ref) {
 
 // ---- Live sources (not bundled) ----
 
-// Sefaria: Targumim and Jastrow/BDB. CORS is open; texts carry their own licences.
+// Sefaria dictionaries (Jastrow, BDB, Klein). CORS is open.
 const SEFARIA = "https://www.sefaria.org/api";
-
-export async function sefariaChapter(title, ch) {
-  const key = `sefaria:${title}.${ch}`;
-  if (!cache.has(key)) {
-    const url = `${SEFARIA}/v3/texts/${encodeURIComponent(`${title.replace(/ /g, "_")}.${ch}`)}`;
-    const p = fetch(url).then((r) => (r.ok ? r.json() : null)).then((d) => {
-      const v = d?.versions?.[0];
-      return v ? { text: v.text, title: v.versionTitle, license: v.license } : null;
-    });
-    p.catch(() => cache.delete(key));
-    cache.set(key, p);
-  }
-  return cache.get(key);
-}
 
 export async function sefariaWords(word) {
   const key = `sefaria-words:${word}`;
@@ -85,3 +71,19 @@ export async function related(strong) {
 export const domains = () => getJSON("domains.json");
 let conceptsP = null;
 export const concepts = () => (conceptsP ??= fetch(new URL("./concepts.json", import.meta.url)).then((r) => r.json()));
+
+// ---- Positional English index for exact phrase search ----
+
+export const phraseVerses = () => getJSON("phrase/verses.json");
+export async function phrasePostings(stemmed) {
+  const flat = (await getJSON(`phrase/${(stemmed + "_").slice(0, 2)}.json`).catch(() => ({})))[stemmed];
+  if (!flat) return null;
+  // Decode [Δverse, pos, word, ...] into [[verse, pos, word], ...]
+  const out = [];
+  let v = 0;
+  for (let i = 0; i < flat.length; i += 3) {
+    v += flat[i];
+    out.push([v, flat[i + 1], flat[i + 2]]);
+  }
+  return out;
+}

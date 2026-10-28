@@ -1,5 +1,5 @@
 // Search engine: English -> original lemmas, phrases, Hebrew/Greek, Strong's.
-import { domains, englishIndex, lex, lemmas, occurrences, related } from "./data.js";
+import { domains, englishIndex, lex, lemmas, occurrences, phrasePostings, phraseVerses, related } from "./data.js";
 import { stem, tokens } from "./stem.js";
 import { fold } from "./util.js";
 
@@ -79,11 +79,18 @@ export async function searchPhrase(query, order, { expand = false } = {}) {
       for (const strong of cands) {
         const rel = await related(strong);
         for (const [k, d] of rel?.syn || []) if (d <= EXPAND_DIST) extra.add(k);
-        for (const [k] of rel?.lxx || []) extra.add(k);
+        // Only strong Septuagint pairs: at least 10% as frequent as the main one.
+        const top = rel?.lxx?.[0]?.[1] || 0;
+        for (const [k, n] of rel?.lxx || []) if (n >= Math.max(5, top * 0.1)) extra.add(k);
       }
       for (const c of cands) extra.delete(c);
+      // Skip related words far more frequent than this term's own matches
+      // (e.g. אָמַר "say" for "word"): they would flood the results.
+      const cap = Math.max(3 * total, 300);
       for (const strong of extra) {
-        for (const [ref, w] of (await occurrences(strong))?.o || []) push(ref, w, strong, true);
+        const occ = (await occurrences(strong))?.o || [];
+        if (occ.length > cap) continue;
+        for (const [ref, w] of occ) push(ref, w, strong, true);
       }
     }
     perTerm.push({ term, st, byRef });
@@ -93,16 +100,47 @@ export async function searchPhrase(query, order, { expand = false } = {}) {
   for (const [ref, first] of perTerm[0].byRef) {
     if (!perTerm.every((p) => p.byRef.has(ref))) continue;
     const lists = perTerm.map((p) => p.byRef.get(ref));
-    const words = lists.map((l) => l.map((x) => x.w));
-    const lo = Math.max(...words.map((w) => Math.min(...w)));
-    const hi = Math.min(...words.map((w) => Math.max(...w)));
-    const all = words.flat();
-    if (Math.max(...all) - Math.min(...all) <= window || hi - lo <= window) {
-      verses.push({ ref, hits: lists.flat() });
-    }
+    const pick = distinctPick(lists.map((l) => [...new Set(l.map((x) => x.w))]), window);
+    if (pick) verses.push({ ref, hits: lists.flat().filter((x) => pick.includes(x.w)) });
   }
   verses.sort((a, b) => order(a.ref) - order(b.ref));
   return { terms, verses };
+}
+
+// ---- Exact phrase: consecutive words in the interlinear English ----
+
+const ARTICLES = new Set(["the", "a", "an"]);
+
+// Matches the query as consecutive English tokens (articles ignored on both sides,
+// see scripts/build_data.py phrase_tokens). Returns each matching verse with the
+// original word numbers that carry the phrase.
+export async function phraseExact(query) {
+  const stems = tokens(query).filter((t) => !ARTICLES.has(t)).map(stem);
+  if (!stems.length) return { stems, verses: [] };
+  const [vs, ...lists] = await Promise.all([phraseVerses(), ...stems.map(phrasePostings)]);
+  const missing = stems.find((_, i) => !lists[i]);
+  if (missing) return { stems, verses: [], missing, otCount: vs.ot };
+  const KEY = 4096;
+  const rest = lists.slice(1).map((l) => new Map(l.map(([v, t, w]) => [v * KEY + t, w])));
+  const byVerse = new Map();
+  for (const [v, t, w] of lists[0]) {
+    const words = [w];
+    let ok = true;
+    for (let i = 0; i < rest.length; i++) {
+      const next = rest[i].get(v * KEY + t + i + 1);
+      if (next === undefined) {
+        ok = false;
+        break;
+      }
+      words.push(next);
+    }
+    if (!ok) continue;
+    if (!byVerse.has(v)) byVerse.set(v, new Set());
+    words.forEach((x) => byVerse.get(v).add(x));
+  }
+  const verses = [...byVerse].sort((a, b) => a[0] - b[0])
+    .map(([v, words]) => ({ ref: vs.refs[v], ot: v < vs.ot, words: [...words].sort((a, b) => a - b) }));
+  return { stems, verses, otCount: vs.ot };
 }
 
 // ---- Meaning field: other original words for the same idea ----
@@ -147,6 +185,24 @@ export async function meaningField(seeds, exclude = new Set()) {
     .slice(0, 60);
   await Promise.all(words.map(async (w) => (w.entry = await lex(w.strong))));
   return { domains: doms, words: words.filter((w) => w.entry) };
+}
+
+// One word position per term, all different (a single חֶסֶד must not satisfy both
+// "mercy" and "love"), spanning at most `window` words. Small backtracking search:
+// phrases have a handful of terms and each term only a few positions per verse.
+function distinctPick(options, window) {
+  const chosen = [];
+  const go = (i) => {
+    if (i === options.length) return Math.max(...chosen) - Math.min(...chosen) <= window;
+    for (const w of options[i]) {
+      if (chosen.includes(w)) continue;
+      chosen.push(w);
+      if (go(i + 1)) return true;
+      chosen.pop();
+    }
+    return false;
+  };
+  return go(0) ? chosen : null;
 }
 
 // Hebrew / Greek / transliteration lookup against the lemma list.

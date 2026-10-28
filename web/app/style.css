@@ -114,10 +114,7 @@ select { font: inherit; padding: 6px; border-radius: 6px; border: 1px solid var(
 .parallel { display: flex; gap: 8px; margin-top: 6px; padding: 6px 8px; background: var(--surface); border-radius: 6px; border-left: 3px solid var(--line); }
 .parallel .plabel { font: 600 0.7rem var(--ui); color: var(--muted); text-transform: uppercase; padding-top: 4px; flex: none; }
 .parallel.lxx .ptext { font-family: var(--grk); font-size: 1.1rem; }
-.parallel.targum .ptext { font-family: var(--heb); font-size: 1.2rem; }
-.hide-lxx .parallel.lxx, .hide-lxx .lxx-note, .hide-targum .parallel.targum { display: none; }
-.lxx-only .verse { font-family: var(--grk); font-size: 1.15rem; }
-.lxx-word { color: inherit; }
+.hide-lxx .parallel.lxx, .hide-lxx .lxx-note { display: none; }
 
 /* ---- side panel ---- */
 .panel {
@@ -208,3 +205,7 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 2
 .inline-list { list-style: none; padding: 0 !important; }
 .inline-list li { display: inline; margin-right: 10px !important; }
 .inline-list li .muted { display: none; }
+.book-dist { margin: 4px 0 8px; }
+.book-dist .tag.ot { background: color-mix(in srgb, var(--aramaic) 15%, transparent); }
+details.testament > summary { font-size: 1.05rem; }
+.orig-wording { margin: 6px 0; }

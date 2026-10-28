@@ -1,6 +1,7 @@
 // Search results: English word -> original lemmas, meaning field, combined verse lists.
 import * as data from "../data.js";
-import { contentTerms, matchingOccurrences, meaningField, searchOriginal, searchPhrase, searchStrong, searchWord } from "../search.js";
+import { contentTerms, matchingOccurrences, meaningField, phraseExact, searchOriginal, searchPhrase, searchStrong, searchWord } from "../search.js";
+import { tokens } from "../stem.js";
 import { fill, h, isGreek, isHebrew, langOf, parseRef, surface } from "../util.js";
 
 export async function renderSearch(app, { q, expand }) {
@@ -31,7 +32,7 @@ export async function renderSearch(app, { q, expand }) {
 
   const { books } = await data.books();
   const terms = contentTerms(q);
-  if (terms.length > 1) return renderPhrase(out, q, books, expand === "1");
+  if (tokens(q).length > 1) return renderPhrase(out, q, books, expand !== "0");
 
   const res = await searchWord(terms[0] || q);
   const sel = new Selection(books);
@@ -232,7 +233,7 @@ function renderField(field, res, sel) {
     }));
 }
 
-// ---- Phrase search ----
+// ---- Phrase search: exact wording + by meaning, across both testaments ----
 
 async function renderPhrase(out, q, books, expand) {
   const order = new Map(books.map((b, i) => [b.id, i]));
@@ -240,40 +241,117 @@ async function renderPhrase(out, q, books, expand) {
     const [b, c, v] = ref.split(".");
     return order.get(b) * 1e6 + Number(c) * 1e3 + Number(v);
   };
-  const res = await searchPhrase(q, key, { expand });
-  if (res.missing) {
-    return fill(out, h("h1", {}, `“${q}”`), h("p", {}, `No original word is rendered “${res.missing}”.`));
-  }
-  const rows = h("ol", { class: "phrase-results" });
-  let shown = 0;
-  const more = h("button", { class: "btn small", onclick: () => draw() }, "Show more");
-  function draw() {
-    for (const v of res.verses.slice(shown, shown + 50)) {
-      const strongs = [...new Map(v.hits.map((x) => [x.strong, x.rel]))];
-      const li = h("li", {},
-        h("a", { href: `#/r/${v.ref}?w=${Math.min(...v.hits.map((x) => x.w))}` }, prettyRef(v.ref, books)), " ",
-        h("span", { class: "snippet muted" }, "…"), " ",
-        h("span", { class: "tags" }, strongs.map(([s, rel]) => h("a", { class: rel ? "tag rel" : "tag", href: `#/w/${s}`, title: rel ? "related word (synonym / LXX equivalent)" : "" }, s))));
-      rows.append(li);
-      phraseSnippet(v).then((s) => li.querySelector(".snippet").replaceWith(s));
-    }
-    shown += 50;
-    more.hidden = shown >= res.verses.length;
-  }
+  const isOT = (ref) => books.find((b) => b.id === ref.split(".")[0])?.t === "OT";
+  const terms = contentTerms(q);
+  const exactBox = h("section", {}, h("p", { class: "muted" }, "Matching exact wording…"));
+  const meaningBox = h("section");
   fill(out,
     h("h1", {}, `Phrase: “${q}”`),
-    h("p", { class: "muted" }, `${res.verses.length} verses where the original words translated ${res.terms.map((t) => `“${t}”`).join(" + ")} occur close together.`),
+    h("p", { class: "muted" }, "Searched in both testaments two ways: the exact wording of the word-for-word English, and by meaning (the original words behind each word, close together, including synonyms)."),
+    exactBox, meaningBox);
+
+  const exact = await phraseExact(q);
+  const exactItems = exact.verses.map((v) => ({ ref: v.ref, words: v.words }));
+  fill(exactBox,
+    h("h2", {}, "Exact wording"),
+    exact.missing
+      ? h("p", {}, `The word “${exact.missing}” never occurs in the interlinear English.`)
+      : exactItems.length
+        ? [testamentSummary(exactItems, isOT, books), originalWording(exactItems), testamentLists(exactItems, isOT, books)]
+        : h("p", {}, "No verse has these words consecutively. Try the by-meaning results below, or fewer words."));
+
+  if (terms.length < 2) {
+    fill(meaningBox, h("p", { class: "muted small" }, `By-meaning search needs two or more content words; for “${terms[0] || q}” alone, `,
+      h("a", { href: `#/s?q=${encodeURIComponent(terms[0] || q)}` }, "see the word search and its related words"), "."));
+    return;
+  }
+  fill(meaningBox, h("h2", {}, "By meaning"), h("p", { class: "muted" }, "Searching…"));
+  const res = await searchPhrase(q, key, { expand });
+  const items = res.verses.map((v) => ({ ref: v.ref, words: [...new Set(v.hits.map((x) => x.w))], hits: v.hits }));
+  fill(meaningBox,
+    h("h2", {}, "By meaning"),
+    h("p", { class: "muted small" }, `Verses where original words translated ${res.terms.map((t) => `“${t}”`).join(" + ")} occur within a few words of each other, in any order.`),
     h("label", { class: "toggle" },
-      h("input", { type: "checkbox", checked: expand, onchange: (e) => (location.hash = `#/s?q=${encodeURIComponent(q)}${e.target.checked ? "&expand=1" : ""}`) }),
-      " Also match close synonyms and Septuagint equivalents (e.g. φιλέω, חָבַב for “love”)"),
-    rows, more);
-  draw();
+      h("input", { type: "checkbox", checked: expand, onchange: (e) => (location.hash = `#/s?q=${encodeURIComponent(q)}${e.target.checked ? "" : "&expand=0"}`) }),
+      " Include close synonyms and Septuagint equivalents (finds e.g. חֶסֶד, רַחֲמִים for “mercy”)"),
+    res.missing ? h("p", {}, `No original word is rendered “${res.missing}”.`)
+      : items.length ? [testamentSummary(items, isOT, books), originalWording(items), testamentLists(items, isOT, books)]
+        : h("p", {}, "No verses found."));
 }
 
-async function phraseSnippet(v) {
-  const verse = await data.verse(v.ref).catch(() => null);
+function testamentSummary(items, isOT, books) {
+  const ot = items.filter((x) => isOT(x.ref)).length;
+  const perBook = new Map();
+  for (const x of items) {
+    const b = x.ref.split(".")[0];
+    perBook.set(b, (perBook.get(b) || 0) + 1);
+  }
+  return h("div", {},
+    h("p", {}, h("strong", {}, `${items.length} verses`), ` · Hebrew Bible ${ot} · New Testament ${items.length - ot}`),
+    h("div", { class: "book-dist" }, [...perBook].map(([b, n]) =>
+      h("span", { class: `tag ${isOT(b + ".1.1") ? "ot" : "nt"}` }, `${books.find((x) => x.id === b)?.name || b} ${n}`))));
+}
+
+// Which original words carry the phrase: lemma sequences with counts.
+function originalWording(items) {
+  const box = h("details", { class: "orig-wording" }, h("summary", {}, "Original words behind these matches"));
+  let done = false;
+  box.addEventListener("toggle", async () => {
+    if (!box.open || done) return;
+    done = true;
+    const sample = items.slice(0, 250);
+    const counts = new Map();
+    await Promise.all(sample.map(async (x) => {
+      const v = await data.verse(x.ref).catch(() => null);
+      if (!v) return;
+      const keys = [...new Set(x.words.map((i) => v.w[i - 1]?.s).filter(Boolean))];
+      const k = keys.join(" + ");
+      if (!counts.has(k)) counts.set(k, { keys, n: 0, ref: x.ref });
+      counts.get(k).n++;
+    }));
+    const rows = [...counts.values()].sort((a, b) => b.n - a.n).slice(0, 30);
+    const names = new Map();
+    await Promise.all([...new Set(rows.flatMap((r) => r.keys))].map(async (s) => names.set(s, (await data.lex(s))?.l || s)));
+    box.append(...[
+      sample.length < items.length ? h("p", { class: "muted small" }, `Based on the first ${sample.length} of ${items.length} matches.`) : null,
+      h("table", { class: "lemma-table" },
+        h("thead", {}, h("tr", {}, h("th", {}, "Original words"), h("th", {}, "Verses"), h("th", {}, "Example"))),
+        h("tbody", {}, rows.map((r) => h("tr", {},
+          h("td", {}, r.keys.map((s, i) => [i ? " + " : "", h("a", { href: `#/w/${s}`, lang: s[0] === "G" ? "grc" : "he" }, names.get(s))])),
+          h("td", {}, r.n),
+          h("td", {}, h("a", { href: `#/r/${r.ref}` }, r.ref.replace(/\.(\d+)$/, ":$1").replace(".", " "))))))),
+    ].filter(Boolean));
+  });
+  return box;
+}
+
+function testamentLists(items, isOT, books) {
+  const groups = [["Hebrew Bible", items.filter((x) => isOT(x.ref))], ["New Testament", items.filter((x) => !isOT(x.ref))]];
+  return groups.filter(([, list]) => list.length).map(([title, list]) => {
+    const ol = h("ol", { class: "phrase-results" });
+    let shown = 0;
+    const more = h("button", { class: "btn small", onclick: () => draw() }, "Show more");
+    function draw() {
+      for (const x of list.slice(shown, shown + 40)) {
+        const li = h("li", {},
+          h("a", { href: `#/r/${x.ref}?w=${Math.min(...x.words)}` }, prettyRef(x.ref, books)), " ",
+          h("span", { class: "snippet muted" }, "…"));
+        ol.append(li);
+        verseSnippet(x.ref, new Set(x.words)).then((s) => li.querySelector(".snippet").replaceWith(s));
+      }
+      shown += 40;
+      more.hidden = shown >= list.length;
+    }
+    const det = h("details", { class: "testament", open: true, ontoggle: (e) => e.target.open && !shown && draw() },
+      h("summary", {}, `${title} (${list.length})`), ol, more);
+    draw();
+    return det;
+  });
+}
+
+async function verseSnippet(ref, hit) {
+  const verse = await data.verse(ref).catch(() => null);
   if (!verse) return h("span");
-  const hit = new Set(v.hits.map((x) => x.w));
   return h("span", { class: "snippet" }, verse.w.map((w, i) => {
     const g = w.g.replace(/[<>/]/g, "") + " ";
     return hit.has(i + 1) ? h("mark", { title: surface(w.t) }, g) : g;
