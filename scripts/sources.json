@@ -1,0 +1,26 @@
+{
+  "_comment": "Upstream datasets, pinned to exact commits so builds are reproducible. Raw files are fetched at build time and never committed (STEPBible asks that its raw data be distributed only from its own repo).",
+  "stepbible": {
+    "repo": "https://github.com/STEPBible/STEPBible-Data.git",
+    "commit": "be4191f0082aeedddb0eff0c02c966292b2bd641",
+    "paths": [
+      "Translators Amalgamated OT+NT/TAHOT*",
+      "Translators Amalgamated OT+NT/TAGNT*",
+      "Lexicons/TBESH*",
+      "Lexicons/TBESG*",
+      "Lexicons/TFLSJ*",
+      "Morphology codes/*"
+    ],
+    "license": "CC BY 4.0",
+    "credit": "STEP Bible (Tyndale House, Cambridge)",
+    "url": "https://www.stepbible.org"
+  },
+  "swete": {
+    "repo": "https://github.com/eliranwong/LXX-Swete-1930.git",
+    "commit": "1d3efc3c63bd384a4f3f07ed37eef54b0d45ac33",
+    "paths": ["00-Swete_versification.csv", "01-Swete_word_with_punctuations.csv", "03-Swete_SBL_transliterations.csv"],
+    "license": "Text public domain (Swete 1909-1930); repository GPL-3.0",
+    "credit": "Eliran Wong, LXX-Swete-1930",
+    "url": "https://github.com/eliranwong/LXX-Swete-1930"
+  }
+}

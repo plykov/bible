@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interlinear Bible</title>
+  <meta name="description" content="Hebrew, Aramaic and Greek interlinear Bible with lexicons, textual variants and English-to-original word search.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Noto+Serif+Hebrew:wght@400;600&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="app/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23234'/><text x='16' y='23' font-size='18' text-anchor='middle' fill='%23fff' font-family='serif'>א</text></svg>">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/">Interlinear Bible</a>
+    <form class="searchbar" id="searchForm" role="search">
+      <input id="searchInput" type="search" placeholder="Search English, Hebrew, Greek, Strong's (H157), or a reference (Jhn 3:16)" autocomplete="off" aria-label="Search">
+    </form>
+    <nav class="topnav">
+      <a href="#/r/Gen.1">Read</a>
+      <a href="#/about">Sources</a>
+    </nav>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <aside id="panel" class="panel" aria-live="polite" hidden></aside>
+  <script type="module" src="app/main.js"></script>
+</body>
+</html>

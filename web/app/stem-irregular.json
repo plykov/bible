@@ -1,0 +1,39 @@
+{
+  "_comment": "Shared by scripts/stem.py and web/app/stem.js. 'map' sends irregular English forms to a base word before stemming; 'keep' lists words the suffix rules would mangle.",
+  "map": {
+    "spoke": "speak", "spoken": "speak", "said": "say", "says": "say", "saith": "say",
+    "gave": "give", "given": "give", "went": "go", "gone": "go", "goes": "go",
+    "came": "come", "saw": "see", "seen": "see", "knew": "know", "known": "know",
+    "took": "take", "taken": "take", "wrote": "write", "written": "write",
+    "ate": "eat", "eaten": "eat", "drank": "drink", "drunk": "drink",
+    "began": "begin", "begun": "begin", "brought": "bring", "bought": "buy",
+    "thought": "think", "taught": "teach", "sought": "seek", "fought": "fight",
+    "caught": "catch", "built": "build", "sent": "send", "spent": "spend",
+    "left": "leave", "kept": "keep", "slept": "sleep", "wept": "weep", "fled": "flee",
+    "fell": "fall", "fallen": "fall", "rose": "rise", "risen": "rise", "arose": "arise", "arisen": "arise",
+    "stood": "stand", "sat": "sit", "led": "lead", "fed": "feed", "met": "meet",
+    "heard": "hear", "told": "tell", "sold": "sell", "held": "hold", "found": "find",
+    "bore": "bear", "born": "bear", "borne": "bear", "tore": "tear", "torn": "tear",
+    "chose": "choose", "chosen": "choose", "forgave": "forgive", "forgiven": "forgive",
+    "hid": "hide", "hidden": "hide", "struck": "strike", "slew": "slay", "slain": "slay",
+    "drove": "drive", "driven": "drive", "rode": "ride", "ridden": "ride",
+    "grew": "grow", "grown": "grow", "threw": "throw", "thrown": "throw",
+    "blew": "blow", "drew": "draw", "drawn": "draw", "flew": "fly", "laid": "lay",
+    "lain": "lie", "lay": "lay", "paid": "pay", "made": "make", "had": "have", "has": "have", "hath": "have",
+    "did": "do", "done": "do", "doth": "do", "doeth": "do", "was": "be", "were": "be", "is": "be",
+    "are": "be", "am": "be", "been": "be", "being": "be", "art": "be", "wast": "be",
+    "men": "man", "women": "woman", "children": "child", "brethren": "brother",
+    "feet": "foot", "teeth": "tooth", "oxen": "ox", "mice": "mouse", "geese": "goose",
+    "lives": "life", "wives": "wife", "knives": "knife", "loaves": "loaf", "leaves": "leaf",
+    "thieves": "thief", "sheaves": "sheaf", "calves": "calf", "halves": "half", "selves": "self",
+    "better": "good", "best": "good", "worse": "bad", "worst": "bad",
+    "greater": "great", "greatest": "great", "elder": "old", "eldest": "old"
+  },
+  "keep": [
+    "nothing", "something", "anything", "everything", "evening", "morning", "offspring",
+    "wedding", "during", "ring", "sing", "king", "thing", "bring", "spring", "string",
+    "wing", "sling", "sting", "swing", "cling", "fling", "ceiling", "darling",
+    "news", "always", "towards", "afterwards", "perhaps", "lest", "less", "unless",
+    "jesus", "moses", "lots"
+  ]
+}
