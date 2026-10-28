@@ -1,0 +1,21 @@
+{
+  "_comment": "Curated notes for well-known word sets, shown above the data-driven meaning field. Every Strong's number, count and reference here was checked against the built data (TAHOT/TAGNT counts, Swete LXX text). Keys are English stems (scripts/stem.py). 'where' says where the word is actually attested: nt, ot (Hebrew/Aramaic), lxx, none.",
+  "love": {
+    "title": "Words for “love”: the commonly cited Greek list, checked against the texts",
+    "intro": "Popular teaching often lists eight Greek “types of love”. Only some are biblical words, and several are modern coinages: the love-style terms pragma, ludus and mania come from J. A. Lee’s 1973 typology, not from ancient usage. Each entry below says where the word is actually attested.",
+    "items": [
+      { "label": "agapē / agapaō", "strongs": ["G0026", "G0025"], "where": ["nt", "lxx"], "note": "The main New Testament words for love (ἀγάπη 116×, ἀγαπάω 143×). In the Septuagint ἀγαπάω translates Hebrew אָהֵב far more than any other word does, so it is not limited to “divine” love." },
+      { "label": "phileō / philia / philos", "strongs": ["G5368", "G5373", "G5384"], "where": ["nt", "lxx"], "note": "Affection and friendship. φιλέω 25× (also “to kiss”); φιλία only at James 4:4 in the NT but frequent in LXX Proverbs and 1 Maccabees; φίλος “friend” 29×." },
+      { "label": "erōs / eraō", "strongs": ["G7513", "G7493"], "where": ["lxx"], "note": "Desire or passion. Never in the New Testament. In the Septuagint ἔρως occurs only at Proverbs 7:18 and Proverbs 24:51 (Hebrew 30:16); the related ἐραστής “lover” is used for Israel’s unfaithfulness in Hosea 2 and Ezekiel 16 and 23.", "refs": [["Prov 7:18", "r/Pro.7.18"], ["Hos 2:5", "r/Hos.2.5"], ["Ezek 23:5", "r/Ezk.23.5"]] },
+      { "label": "storgē", "strongs": ["G0794", "G5387"], "where": ["lxx", "nt"], "note": "Family affection. The noun στοργή is not in the NT; it appears only in 3 Maccabees 5:32 and 4 Maccabees 14:13–17. The NT has its compounds: ἄστοργος “without natural affection” (Rom 1:31; 2 Tim 3:3) and φιλόστοργος “devoted” (Rom 12:10).", "refs": [["4 Macc 14:13", "lxx/4Ma.14"], ["Rom 12:10", "r/Rom.12.10"]] },
+      { "label": "philautia (self-love)", "strongs": ["G5367"], "where": ["nt"], "note": "The noun φιλαυτία occurs nowhere in the Bible. The adjective φίλαυτος “lovers of self” appears once, at 2 Timothy 3:2, as a vice.", "refs": [["2 Tim 3:2", "r/2Ti.3.2"]] },
+      { "label": "pragma", "strongs": ["G4229"], "where": ["nt"], "note": "Not a word for love: πρᾶγμα means “matter, deed, thing” (11× in the NT). “Pragma” as enduring love is a modern psychology term." },
+      { "label": "mania", "strongs": ["G3130"], "where": ["nt"], "note": "Not a word for love: μανία means “madness” (Acts 26:24, Festus to Paul). “Mania” as obsessive love is a modern psychology term." },
+      { "label": "ludus", "strongs": [], "where": ["none"], "note": "Latin, not Greek (“game, play”). A modern love-style term with no biblical counterpart." },
+      { "label": "Hebrew: ’āhēḇ / ’ahăḇāh", "strongs": ["H0157G", "H0160"], "where": ["ot"], "note": "The broad Hebrew word for love (verb and noun), used of God, people, friends, spouses and things. The Septuagint renders it almost always with ἀγαπάω." },
+      { "label": "Hebrew: ḥeseḏ", "strongs": ["H2617A"], "where": ["ot"], "note": "Loyal, covenant kindness (245×), often translated “steadfast love” or “lovingkindness”. The Septuagint renders it with ἔλεος “mercy”." },
+      { "label": "Hebrew: raḥămîm / rāḥam", "strongs": ["H7356B", "H7355"], "where": ["ot"], "note": "Compassion. Related to רֶחֶם “womb”, i.e. tender, motherly love." },
+      { "label": "Hebrew: dôḏ, yāḏîḏ, ḥāšaq, ‘āḡaḇ", "strongs": ["H1730H", "H3039A", "H2836A", "H5689"], "where": ["ot"], "note": "Beloved / love-making (frequent in the Song of Songs), dear one, attached desire, and lustful desire (Ezekiel 23)." }
+    ]
+  }
+}

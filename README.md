@@ -19,7 +19,15 @@ build step for the frontend: plain ES modules plus pre-built JSON shards.
 - **Search:**
   - an English word → every Hebrew/Aramaic/Greek word rendered that way, with counts and
     verse links (`love` → אָהַב, ἀγαπάω, ἀγάπη, φιλέω …)
-  - an English phrase → verses where the original words occur together (`word of God`)
+  - **meaning field**: other Hebrew, Aramaic and Greek words for the same idea, even when the
+    interlinear doesn't translate them with that English word. It draws on MACULA semantic
+    domains (Louw–Nida, SDBH), cross-language synonym scores and Septuagint Hebrew↔Greek
+    pairs. Curated notes check popular word lists (e.g. the "Greek words for love") against
+    the texts.
+  - tick any set of words → all their verses, plus the verses where two or more occur together
+    (e.g. ἀγαπάω + φιλέω → John 21:15–16)
+  - an English phrase → verses where the original words occur together (`word of God`),
+    optionally widened with close synonyms
   - Hebrew or Greek (vowels and accents ignored), Strong's numbers (`H7225`), or references
     (`Jn 1:1`)
 
@@ -55,6 +63,8 @@ and the JavaScript stemmer (used in the browser) agree on every English gloss wo
 scripts/sources.json     upstream datasets pinned to commits
 scripts/fetch_sources.py sparse, shallow checkouts into .cache/sources
 scripts/build_data.py    TAHOT/TAGNT/lexicons/LXX → web/data/*.json
+scripts/build_related.py MACULA synonyms/domains/LXX pairs → web/data/rel, domains.json
+web/app/concepts.json    curated notes on well-known word sets (checked against the data)
 scripts/stem.py          English stemmer (mirrors web/app/stem.js)
 web/index.html           app shell
 web/app/                 main.js (router), data.js, search.js, panel.js, views/*
@@ -69,12 +79,14 @@ Non-commercial study tool. See the in-app **Sources** page and
 - **STEPBible Data** (TAHOT, TAGNT, TBESH, TBESG, TFLSJ, TEHMC/TEGMC): CC BY 4.0, Tyndale
   House Cambridge / www.STEPBible.org
 - **Swete LXX** (Eliran Wong): public-domain text, GPL-3.0 repository
+- **MACULA Hebrew & Greek** (Biblica / Clear Bible): CC BY 4.0; semantic domains used with
+  permission of UBS
 - **Sefaria** (live): Targumim and dictionaries; each text carries its own licence
 
 ## Roadmap
 
-- [ ] MACULA Hebrew/Greek: semantic domains (SDBH, Louw–Nida) for sense grouping, Hebrew→LXX
-      word links
+- [x] MACULA semantic domains, synonyms and Hebrew↔LXX links (related words, meaning field)
+- [ ] More curated concept notes (`web/app/concepts.json`): time, life, word, know, power
 - [ ] ETCBC Dead Sea Scrolls as verse parallels; ETCBC BHSA clause and phrase data
 - [ ] ETCBC Peshitta (Syriac OT)
 - [ ] Rahlfs LXX with morphology (requires the CCAT user declaration first)

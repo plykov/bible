@@ -20,6 +20,8 @@ export async function renderWord(app, { strong, en }) {
     h("option", { value: "book" }, "Group by book"));
   const onlyMatch = st ? h("label", { class: "toggle" }, h("input", { type: "checkbox", checked: true, onchange: () => drawGroups() }), ` Only where rendered “${en}”`) : null;
   const groups = h("div", { class: "groups" });
+  const relatedBox = h("div", { class: "related" });
+  renderRelated(strong, relatedBox);
 
   const rend = entry.r.length
     ? h("div", { class: "renderings" }, entry.r.slice(0, 15).map(([g, n]) =>
@@ -62,6 +64,7 @@ export async function renderWord(app, { strong, en }) {
           studyLinks(strong, entry.l).map(([n, u]) => h("a", { href: u, target: "_blank", rel: "noopener" }, n)))),
       h("div", {},
         h("h2", {}, "How it is translated"), rend || h("p", { class: "muted" }, "No interlinear renderings."))),
+    relatedBox,
     h("h2", {}, "Every occurrence"),
     h("div", { class: "group-controls" }, groupBy, onlyMatch),
     groups));
@@ -128,4 +131,30 @@ function sefariaEntry(e) {
     h("h4", {}, h("span", { lang: "he" }, e.headword), " ", h("small", { class: "muted" }, e.parent_lexicon)),
     e.content?.morphology ? h("p", { class: "muted" }, e.content.morphology) : null,
     senses(e.content?.senses));
+}
+
+// Related words: close synonyms (any language), Septuagint equivalents, same domain.
+async function renderRelated(strong, box) {
+  const [rel, catalogue] = await Promise.all([data.related(strong), data.domains()]);
+  if (!rel) return;
+  const link = async (k, extra) => {
+    const e = await data.lex(k);
+    if (!e) return null;
+    return h("li", {}, h("a", { href: `#/w/${k}`, lang: k[0] === "G" ? "grc" : "he" }, e.l), " ",
+      h("span", { class: "muted small" }, `${e.g} · ${langOf(k, e.m)}`), extra ? h("span", { class: "why" }, extra) : null);
+  };
+  const syn = await Promise.all((rel.syn || []).filter(([, d]) => d <= 0.75).slice(0, 12).map(([k, d]) => link(k, d.toFixed(2))));
+  const lxx = await Promise.all((rel.lxx || []).map(([k, n]) => link(k, `×${n}`)));
+  const doms = (rel.dom || []).map(([id]) => catalogue[id]).filter(Boolean);
+  const domLists = await Promise.all(doms.map(async (d) => h("div", {},
+    h("h4", {}, d.parent ? `${d.label} (${d.parent})` : d.label),
+    h("ul", { class: "inline-list" }, await Promise.all(d.m.filter(([k]) => k !== strong).slice(0, 14).map(([k]) => link(k)))))));
+  const isG = strong[0] === "G";
+  fill(box,
+    h("h2", {}, "Related words"),
+    h("p", { class: "muted small" }, "From MACULA: synonym distance across Hebrew, Aramaic and Greek (lower = closer), Septuagint translation pairs, and semantic domains (" + (isG ? "Louw–Nida" : "SDBH") + ")."),
+    h("div", { class: "cols3" },
+      syn.length ? h("div", {}, h("h3", {}, "Closest in meaning"), h("ul", {}, syn)) : null,
+      lxx.length ? h("div", {}, h("h3", {}, isG ? "Hebrew words it translates (LXX)" : "Greek used for it in the LXX"), h("ul", {}, lxx)) : null,
+      domLists.length ? h("div", {}, h("h3", {}, "Same semantic domain"), domLists) : null));
 }

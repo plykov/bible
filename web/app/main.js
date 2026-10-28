@@ -25,7 +25,7 @@ async function route() {
     } else if (parts[0] === "w") {
       await renderWord(app, { strong: parts[1], en: params.en });
     } else if (parts[0] === "s") {
-      await renderSearch(app, { q: params.q });
+      await renderSearch(app, { q: params.q, expand: params.expand });
     } else if (parts[0] === "about") {
       await renderAbout(app);
     } else {

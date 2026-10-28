@@ -76,3 +76,12 @@ export async function sefariaWords(word) {
   }
   return cache.get(key);
 }
+
+// ---- Related words (MACULA): synonyms, semantic domains, LXX equivalents ----
+
+export async function related(strong) {
+  return (await getJSON(`rel/${bucket(strong)}.json`).catch(() => ({})))[strong] || null;
+}
+export const domains = () => getJSON("domains.json");
+let conceptsP = null;
+export const concepts = () => (conceptsP ??= fetch(new URL("./concepts.json", import.meta.url)).then((r) => r.json()));

@@ -29,6 +29,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--ui); }
 a { color: var(--accent); text-decoration: none; }
@@ -178,3 +179,32 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 2
   .vlinks { display: none; }
   .results { grid-template-columns: 1fr; }
 }
+
+/* ---- meaning field / selection ---- */
+.concept { margin: 12px 0 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.concept h2 { margin-top: 0; }
+.table-wrap { overflow-x: auto; }
+.concept-table td { vertical-align: top; }
+.concept-table .cword { white-space: nowrap; margin: 2px 0; }
+.where { display: inline-block; margin: 1px 4px 1px 0; padding: 0 6px; border-radius: 4px; font-size: 0.75rem; background: var(--accent-soft); white-space: nowrap; }
+.where.lxx { background: color-mix(in srgb, var(--aramaic) 18%, transparent); }
+.where.none { background: color-mix(in srgb, var(--variant) 18%, transparent); }
+.why { display: inline-block; margin: 1px 4px 1px 6px; padding: 0 6px; border-radius: 4px; font-size: 0.75rem; color: var(--muted); border: 1px solid var(--line); white-space: nowrap; }
+.why.syn { border-color: var(--accent); }
+.why.lxx { border-color: var(--aramaic); }
+.domains { margin: 6px 0; }
+.field-table td a { font-size: 1.15rem; }
+.card header .pick { margin-right: 2px; }
+.selbar {
+  position: sticky; bottom: 0; z-index: 15; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-top: 16px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--accent); border-radius: 10px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+}
+.selbar span:nth-child(2) { font-family: var(--grk), var(--heb); flex: 1; min-width: 8em; }
+.tag.rel { background: color-mix(in srgb, var(--aramaic) 18%, transparent); }
+.cols3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.cols3 ul { padding-left: 1.1em; margin: 0; }
+.cols3 li { margin: 4px 0; }
+.inline-list { list-style: none; padding: 0 !important; }
+.inline-list li { display: inline; margin-right: 10px !important; }
+.inline-list li .muted { display: none; }

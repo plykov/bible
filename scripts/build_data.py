@@ -14,6 +14,8 @@ Layout produced:
   search/en/{xx}.json             English stem -> lemmas index, sharded by first 2 letters
   lemmas.json                     compact lemma list for Hebrew/Greek/Strong's lookup
   morph/{heb,grk}.json            morphology code expansions
+  rel/{H|G}{bucket}.json          related words: synonyms, semantic domains, LXX equivalents
+  domains.json                    semantic domain labels + member lemmas
   meta.json                       build info + source commits (for the credits page)
 """
 import html
@@ -27,6 +29,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from books import BOOKS, LXX_EXTRA, SWETE_BOOKS  # noqa: E402
+import build_related  # noqa: E402
 from stem import stem, tokens  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -483,6 +486,8 @@ def main():
     lemmas = [[k, v["l"], v["x"], v["g"], len(col.occ.get(k, []))]
               for k, v in sorted(lex.items()) if bucket(k)]
     write_json(OUT / "lemmas.json", lemmas)
+
+    build_related.build(resolve, lex, chapters, OUT, write_json, bucket)
 
     write_json(OUT / "morph" / "heb.json", load_morph("Morphology codes/TEHMC*"))
     write_json(OUT / "morph" / "grk.json", load_morph("Morphology codes/TEGMC*"))

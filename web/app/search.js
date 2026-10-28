@@ -1,5 +1,5 @@
 // Search engine: English -> original lemmas, phrases, Hebrew/Greek, Strong's.
-import { englishIndex, lex, lemmas, occurrences } from "./data.js";
+import { domains, englishIndex, lex, lemmas, occurrences, related } from "./data.js";
 import { stem, tokens } from "./stem.js";
 import { fold } from "./util.js";
 
@@ -49,7 +49,7 @@ export async function searchWord(term) {
 
 // Phrase: find verses where each content word is rendered by some lemma, with the
 // original words close together (original word order often differs from English).
-export async function searchPhrase(query, order) {
+export async function searchPhrase(query, order, { expand = false } = {}) {
   const terms = contentTerms(query);
   const perTerm = [];
   for (const term of terms) {
@@ -66,10 +66,24 @@ export async function searchPhrase(query, order) {
       acc += c;
     }
     const byRef = new Map();
+    const push = (ref, w, strong, rel) => {
+      if (!byRef.has(ref)) byRef.set(ref, []);
+      byRef.get(ref).push({ w, strong, rel });
+    };
     for (const strong of cands) {
-      for (const [ref, w] of await matchingOccurrences(strong, st)) {
-        if (!byRef.has(ref)) byRef.set(ref, []);
-        byRef.get(ref).push({ w, strong });
+      for (const [ref, w] of await matchingOccurrences(strong, st)) push(ref, w, strong, false);
+    }
+    if (expand) {
+      // Add close synonyms / LXX equivalents, matching all their occurrences.
+      const extra = new Set();
+      for (const strong of cands) {
+        const rel = await related(strong);
+        for (const [k, d] of rel?.syn || []) if (d <= EXPAND_DIST) extra.add(k);
+        for (const [k] of rel?.lxx || []) extra.add(k);
+      }
+      for (const c of cands) extra.delete(c);
+      for (const strong of extra) {
+        for (const [ref, w] of (await occurrences(strong))?.o || []) push(ref, w, strong, true);
       }
     }
     perTerm.push({ term, st, byRef });
@@ -89,6 +103,50 @@ export async function searchPhrase(query, order) {
   }
   verses.sort((a, b) => order(a.ref) - order(b.ref));
   return { terms, verses };
+}
+
+// ---- Meaning field: other original words for the same idea ----
+
+const EXPAND_DIST = 0.6;   // phrase expansion: only very close synonyms
+const FIELD_DIST = 0.72;   // meaning field: synonyms up to this distance
+
+// Collects words related to the seed lemmas by three independent signals and
+// scores them; a word supported by several signals ranks higher.
+//   syn: cross-language synonym distance (MACULA Proximity), lower = closer
+//   lxx: Septuagint translation equivalent (Hebrew <-> Greek), with count
+//   dom: shares a semantic domain (Louw-Nida / SDBH) with the seeds
+export async function meaningField(seeds, exclude = new Set()) {
+  const catalogue = await domains();
+  const field = new Map();
+  const add = (strong, reason, score) => {
+    if (exclude.has(strong)) return;
+    if (!field.has(strong)) field.set(strong, { strong, reasons: [], best: {} });
+    const f = field.get(strong);
+    f.reasons.push(reason);
+    f.best[reason.type] = Math.max(f.best[reason.type] || 0, score);
+  };
+  const domainWeight = new Map();
+  for (const seed of seeds) {
+    const rel = await related(seed);
+    if (!rel) continue;
+    for (const [k, d] of rel.syn || []) if (d <= FIELD_DIST) add(k, { type: "syn", from: seed, d }, 1 - d);
+    for (const [k, n] of rel.lxx || []) add(k, { type: "lxx", from: seed, n }, Math.min(0.9, 0.35 + n / 40));
+    // Only each seed's primary domain: secondary ones come from special uses
+    // (e.g. the participle "lover" tagged as a kind of person) and add noise.
+    const [d, n] = rel.dom?.[0] || [];
+    if (d) domainWeight.set(d, (domainWeight.get(d) || 0) + n);
+  }
+  const doms = [...domainWeight].sort((a, b) => b[1] - a[1]).slice(0, 4)
+    .filter(([id]) => catalogue[id]).map(([id]) => ({ id, ...catalogue[id] }));
+  for (const d of doms) {
+    for (const [k, n] of d.m) add(k, { type: "dom", domain: d.id, n }, 0.25 + Math.min(0.25, n / 400));
+  }
+  const words = [...field.values()]
+    .map((f) => ({ ...f, score: Object.values(f.best).reduce((a, b) => a + b, 0) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 60);
+  await Promise.all(words.map(async (w) => (w.entry = await lex(w.strong))));
+  return { domains: doms, words: words.filter((w) => w.entry) };
 }
 
 // Hebrew / Greek / transliteration lookup against the lemma list.

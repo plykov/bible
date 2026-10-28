@@ -18,9 +18,38 @@
   "swete": {
     "repo": "https://github.com/eliranwong/LXX-Swete-1930.git",
     "commit": "1d3efc3c63bd384a4f3f07ed37eef54b0d45ac33",
-    "paths": ["00-Swete_versification.csv", "01-Swete_word_with_punctuations.csv", "03-Swete_SBL_transliterations.csv"],
+    "paths": [
+      "00-Swete_versification.csv",
+      "01-Swete_word_with_punctuations.csv",
+      "03-Swete_SBL_transliterations.csv"
+    ],
     "license": "Text public domain (Swete 1909-1930); repository GPL-3.0",
     "credit": "Eliran Wong, LXX-Swete-1930",
     "url": "https://github.com/eliranwong/LXX-Swete-1930"
+  },
+  "macula_greek": {
+    "repo": "https://github.com/Clear-Bible/macula-greek.git",
+    "commit": "8423afe47b9e8f24b7772e808af45c7159a6fe7e",
+    "paths": [
+      "SBLGNT/tsv/macula-greek-SBLGNT.tsv",
+      "sources/MARBLE/SDBG/marble-domain-label-mapping.json",
+      "sources/Clear/synonyms/Proximity.tsv"
+    ],
+    "license": "CC BY 4.0 (Louw-Nida domain data used with permission of UBS)",
+    "credit": "MACULA Greek Linguistic Datasets, Biblica / Clear Bible",
+    "url": "https://github.com/Clear-Bible/macula-greek"
+  },
+  "macula_hebrew": {
+    "repo": "https://github.com/Clear-Bible/macula-hebrew.git",
+    "commit": "47db250bd55d0d8577f2a94fba114ef16c35b23c",
+    "paths": [
+      "LICENSE.md"
+    ],
+    "lfs": [
+      "WLC/tsv/macula-hebrew.tsv"
+    ],
+    "license": "CC BY 4.0 (SDBH domain data used with permission of UBS)",
+    "credit": "MACULA Hebrew Linguistic Datasets, Biblica / Clear Bible",
+    "url": "https://github.com/Clear-Bible/macula-hebrew"
   }
 }
