@@ -4,6 +4,7 @@ import { closePanel } from "./panel.js";
 import { initStemmer } from "./stem.js";
 import { fill, h, parseRef, setBooks } from "./util.js";
 import { renderAbout } from "./views/about.js";
+import { renderDssVariants } from "./views/dss.js";
 import { renderReader } from "./views/reader.js";
 import { renderSearch } from "./views/search.js";
 import { renderWord } from "./views/word.js";
@@ -18,11 +19,13 @@ async function route() {
   try {
     if (parts[0] === "r") {
       const [book, ch, vs] = (parts[1] || "Gen.1").split(".");
-      await renderReader(app, { book, ch: Number(ch) || 1, vs: Number(vs) || null, w: Number(params.w) || null });
+      await renderReader(app, { book, ch: Number(ch) || 1, vs: Number(vs) || null, w: Number(params.w) || null, dss: params.dss === "1" });
     } else if (parts[0] === "w") {
       await renderWord(app, { strong: parts[1], en: params.en });
     } else if (parts[0] === "s") {
       await renderSearch(app, { q: params.q, scope: params.expand === "0" ? "direct" : params.scope });
+    } else if (parts[0] === "dss") {
+      await renderDssVariants(app, { book: parts[1] });
     } else if (parts[0] === "about") {
       await renderAbout(app);
     } else {
@@ -44,7 +47,8 @@ async function renderHome() {
     h("h1", {}, "Hebrew, Aramaic & Greek Interlinear Bible"),
     h("p", { class: "lead" }, "Read the original texts word by word with English glosses, grammar, textual variants and dictionaries. Search an English word to find every original word behind it, and every place it occurs."),
     h("p", { class: "examples" }, "Try: ", examples.map((e) => h("a", { href: `#/s?q=${encodeURIComponent(e)}`, class: "tag" }, e))),
-    group("OT", "Old Testament", "Leningrad Codex · Ketiv/Qere, Aleppo and BHS variants · Septuagint parallel"),
+    group("OT", "Old Testament", "Leningrad Codex · Ketiv/Qere, Aleppo and BHS variants · Septuagint and Dead Sea Scrolls parallels"),
+    h("p", {}, h("a", { href: "#/dss" }, "Dead Sea Scrolls variants: every verse where a scroll differs from the Masoretic text →")),
     group("NT", "New Testament", "NA27/28 with TR, Byzantine, SBL, Westcott-Hort, Tregelles and Tyndale House readings"),
   ));
 }

@@ -15,6 +15,12 @@ build step for the frontend: plain ES modules plus pre-built JSON shards.
     fragment and findspot. Editorial signs are shown as styles: reconstructed letters faint,
     uncertain dotted, scribal erasures struck through, supralinear raised. Try Isaiah 53:11
     (אור "light" in 1QIsaᵃ) or Deuteronomy 32:8 (בני אלוהים in 4Q37).
+  - **word-by-word comparison with the Masoretic text**: different words, extra words and
+    missing words are highlighted, with the Masoretic word shown on hover. Spelling-only
+    differences (לוא / לא, נפשוה / נפשו, כיא / כי) are recognised and left unmarked, and
+    reconstructed letters are never counted. `#/dss` lists all 1,650 verses with substantive
+    differences, by book. The rules live in `scripts/dss_compare.py`, with known cases in
+    `scripts/test_dss_compare.py`.
 - **Word panel:** click any word for its morpheme breakdown, expanded grammar, variants,
   dictionary entry and external study links.
 - **Word study:** abridged BDB or Abbott-Smith, full LSJ for Greek, and Jastrow/BDB/Klein from
@@ -75,6 +81,7 @@ scripts/sources.json     upstream datasets pinned to commits
 scripts/fetch_sources.py sparse, shallow checkouts into .cache/sources
 scripts/build_data.py    TAHOT/TAGNT/lexicons/LXX/phrase index → web/data/*.json
 scripts/build_dss.py     Dead Sea Scrolls Text-Fabric → web/data/dss
+scripts/dss_compare.py   DSS ↔ Masoretic word alignment and classification
 scripts/build_related.py MACULA synonyms/domains/LXX pairs → web/data/rel, domains.json
 web/app/concepts.json    curated notes on well-known word sets (checked against the data)
 scripts/stem.py          English stemmer (mirrors web/app/stem.js)
@@ -101,7 +108,7 @@ Non-commercial study tool. See the in-app **Sources** page and
 - [x] MACULA semantic domains, synonyms and Hebrew↔LXX links (related words, meaning field)
 - [x] Curated concept notes (`web/app/concepts.json`): love, time, life, word, know
 - [x] Dead Sea Scrolls readings as verse parallels
-- [ ] Word-level DSS ↔ Masoretic comparison (highlight differing words)
+- [x] Word-level DSS ↔ Masoretic comparison and variant lists
 - [ ] ETCBC BHSA clause and phrase data
 - [ ] ETCBC Peshitta (Syriac OT)
 - [ ] Rahlfs LXX with morphology (requires the CCAT user declaration first)

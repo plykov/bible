@@ -2,15 +2,19 @@
 import * as data from "../data.js";
 import { fill, h, store, save, surface, verseLinks } from "../util.js";
 import { openWord } from "../panel.js";
-import { DSS_LEGEND, findspot, renderDss } from "../dss.js";
+import { DSS_LEGEND, findspot, renderDss, substantive } from "../dss.js";
 
 const DEFAULTS = { translit: true, gloss: true, strong: false, morph: false, lxx: false, dss: false, variants: true };
 
-export async function renderReader(app, { book, ch, vs, w }) {
+export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
   const { books } = await data.books();
   const b = books.find((x) => x.id === book) || books[0];
   ch = Math.min(Math.max(1, ch || 1), b.ch);
   const opts = { ...DEFAULTS, ...store("reader-opts", {}) };
+  if (forceDss) {
+    opts.dss = true;
+    save("reader-opts", opts);
+  }
   const ot = b.t === "OT";
   const loaded = { lxx: false, dss: false };
 
@@ -90,14 +94,32 @@ export async function renderReader(app, { book, ch, vs, w }) {
         n++;
         el.append(h("div", { class: "parallel dss" },
           h("span", { class: "plabel" }, "DSS"),
-          h("div", { class: "dss-rows" }, rows.map(([scroll, frag, text]) => h("div", { class: "dss-row" },
-            h("span", { class: "scroll", title: [findspot(scroll), frag && `fragment/column ${frag}`].filter(Boolean).join(" · ") }, scroll),
-            h("span", { class: "dss-text", lang: "he", dir: "rtl" }, renderDss(text)))))));
+          h("div", { class: "dss-rows" }, rows.map(([scroll, frag, text, codes = "", notes = []]) => {
+            const diff = substantive(codes, notes);
+            return h("div", { class: "dss-row" },
+              h("span", { class: "scroll", title: [findspot(scroll), frag && `fragment/column ${frag}`].filter(Boolean).join(" · ") }, scroll),
+              h("span", { class: "dss-text", lang: "he", dir: "rtl" }, renderDss(text, codes, notes)),
+              diff ? h("span", { class: "dss-diff", title: "Substantive differences from the Masoretic text in this scroll" }, `≠ MT ${diff}`) : null);
+          }))));
       }
-      body.prepend(h("p", { class: "note dss-note" },
-        `Dead Sea Scrolls: ${n} verse${n === 1 ? "" : "s"} in this chapter attested in the scrolls (consonantal text, Hebrew numbering mapped to English). Key: `,
-        DSS_LEGEND.map(([k, label]) => [h("span", { class: `dss-key ${k}` }, "אבג"), ` ${label}  `]),
-        "Hover a scroll name for where it was found. Data: ETCBC/CACCHT (M. Abegg transcriptions), CC BY-NC 4.0."));
+      const spelling = h("label", { class: "toggle" },
+        h("input", { type: "checkbox", checked: store("dss-spelling", false), onchange: (e) => {
+          save("dss-spelling", e.target.checked);
+          body.classList.toggle("show-spelling", e.target.checked);
+        } }), " mark spelling-only differences");
+      body.classList.toggle("show-spelling", store("dss-spelling", false));
+      body.prepend(h("div", { class: "note dss-note" },
+        h("p", {}, `Dead Sea Scrolls: ${n} verse${n === 1 ? "" : "s"} in this chapter attested in the scrolls (Hebrew numbering mapped to English). `,
+          h("a", { href: `#/dss/${b.id}` }, `All scroll variants in ${b.name} →`)),
+        h("p", {}, "Compared with the Masoretic text, word by word: ",
+          h("span", { class: "v-x" }, "different word"), " (hover for the Masoretic word) · ",
+          h("span", { class: "v-plus" }, "not in the MT"), " · ",
+          h("span", { class: "v-omit" }, "⟨MT word missing here⟩"), " · ",
+          h("span", { class: "v-m" }, "prefix/ending only"), " · ",
+          h("span", { class: "v-u" }, "possible, uncertain letters"), ". Spelling differences (extra vowel letters such as לוא for לא) are not marked unless you choose: ", spelling),
+        h("p", {}, "Scroll signs: ",
+          DSS_LEGEND.map(([k, label]) => [h("span", { class: `dss-key ${k}` }, "אבג"), ` ${label}  `]),
+          "Reconstructed letters are never counted as differences. Hover a scroll name for where it was found. Data: ETCBC/CACCHT (M. Abegg transcriptions), CC BY-NC 4.0.")));
     }
     if (!opts.lxx || loaded.lxx || !b.lxx) return;
     loaded.lxx = true;

@@ -6,12 +6,17 @@ reconstructions, not preserved on the leather. DSS references use Hebrew
 versification; they are mapped to our English chapter/verse through the Hebrew
 refs recorded by TAHOT (e.g. Mal 3:19 -> Mal 4:1, Psalm titles -> verse 0).
 
-Output: dss/{Book}/{ch}.json  {verse: [[scroll, fragments, text], ...]}
+Each reading is compared word by word with the Masoretic text (dss_compare.py).
+
+Output: dss/{Book}/{ch}.json  {verse: [[scroll, fragments, text, codes, notes], ...]}
+        dss/variants.json     {book: [[ch, verse, substantive differences, [scrolls]], ...]}
 """
 import bisect
 import re
 from collections import defaultdict
 from pathlib import Path
+
+from dss_compare import compare
 
 ROOT = Path(__file__).resolve().parent.parent
 TF = ROOT / ".cache" / "sources" / "dss" / "tf" / "2.0.2"
@@ -175,13 +180,32 @@ def build(chapters, out_dir, write_json):
         for sc in sorted(scrolls, key=scroll_key):
             text = re.sub(r"\s+", " ", "".join(scrolls[sc]["words"])).strip()
             if preserved_letters(text):  # skip placeholders such as "ε ε ׃"
-                rows.append([sc, ", ".join(scrolls[sc]["frags"]), text])
+                codes, notes = compare(text, chapters[(code, ch)][vs])
+                rows.append([sc, ", ".join(scrolls[sc]["frags"]), text, codes, notes])
         if rows:
             by_chapter[(code, ch)][vs] = rows
             coverage[code] += 1
     for (code, ch), verses in by_chapter.items():
         write_json(out_dir / "dss" / code / f"{ch}.json", dict(sorted(verses.items())))
+
+    # Index of verses where a scroll differs substantively from the Masoretic text:
+    # a different word (x), an extra word (+) or an omission (-), on preserved letters.
+    variants = defaultdict(list)
+    for (code, ch), verses in by_chapter.items():
+        for vs, rows in verses.items():
+            n, scrolls = 0, []
+            for sc, _, _, codes, notes in rows:
+                k = codes.count("x") + codes.count("+") + sum(1 for nt in notes if nt[1] == "-")
+                if k:
+                    n += k
+                    scrolls.append(sc)
+            if n:
+                variants[code].append([ch, vs, n, scrolls])
+    order = list(BOOK_MAP.values())
+    write_json(out_dir / "dss" / "variants.json",
+               {b: sorted(v) for b, v in sorted(variants.items(), key=lambda x: order.index(x[0]))})
     print(f"dss: {sum(coverage.values())} verses in {len(coverage)} books, "
           f"{len({sc for r in readings.values() for sc in r})} scrolls"
-          + (f", {unmapped} words with no matching verse" if unmapped else ""))
+          + (f", {unmapped} words with no matching verse" if unmapped else "")
+          + f"; {sum(len(v) for v in variants.values())} verses with substantive differences from the MT")
     return dict(coverage)

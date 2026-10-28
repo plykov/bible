@@ -43,6 +43,9 @@ jobs:
       - name: Test stemmer parity (Python vs JS)
         run: python scripts/test_stem.py
 
+      - name: Test DSS / Masoretic word classifier
+        run: python scripts/test_dss_compare.py
+
       - name: Upload site
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3

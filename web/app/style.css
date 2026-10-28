@@ -228,3 +228,18 @@ details.testament > summary { font-size: 1.05rem; }
 .seg a:first-child { border-left: 0; }
 .seg a:hover { text-decoration: none; background: var(--accent-soft); }
 .seg a.on { background: var(--accent); color: var(--surface); font-weight: 500; }
+
+/* ---- DSS vs Masoretic comparison ---- */
+.dss-text .tok { border-radius: 3px; }
+.v-x { background: color-mix(in srgb, var(--variant) 22%, transparent); box-shadow: inset 0 -2px 0 var(--variant); border-radius: 3px; cursor: help; }
+.v-plus { background: color-mix(in srgb, #2e8b57 22%, transparent); box-shadow: inset 0 -2px 0 #2e8b57; border-radius: 3px; cursor: help; }
+.v-omit { color: var(--variant); font-size: 0.8em; opacity: 0.85; cursor: help; }
+.v-m { box-shadow: inset 0 -1px 0 var(--accent); cursor: help; }
+.v-u { box-shadow: inset 0 -1px 0 var(--muted); cursor: help; }
+.show-spelling .v-s { box-shadow: inset 0 -1px 0 var(--muted); cursor: help; }
+.dss-diff { flex: none; font-size: 0.72rem; color: var(--variant); white-space: nowrap; }
+.dss-note p { margin: 4px 0; }
+.dss-note .v-x, .dss-note .v-plus, .dss-note .v-m, .dss-note .v-u, .dss-note .v-omit { padding: 0 4px; }
+.variant-list td { vertical-align: top; }
+.variant-list .vd { font-family: var(--heb); font-size: 1.1rem; unicode-bidi: isolate; display: inline-block; }
+.variant-list td:last-child { direction: ltr; }
