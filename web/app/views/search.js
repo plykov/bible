@@ -1,10 +1,10 @@
 // Search results: English word -> original lemmas, meaning field, combined verse lists.
 import * as data from "../data.js";
-import { contentTerms, matchingOccurrences, meaningField, phraseExact, searchOriginal, searchPhrase, searchStrong, searchWord } from "../search.js";
+import { SCOPES, contentTerms, currentScope, matchingOccurrences, meaningField, phraseExact, searchOriginal, searchPhrase, searchStrong, searchWord } from "../search.js";
 import { tokens } from "../stem.js";
 import { fill, h, isGreek, isHebrew, langOf, parseRef, surface } from "../util.js";
 
-export async function renderSearch(app, { q, expand }) {
+export async function renderSearch(app, { q, scope: scopeId }) {
   q = (q || "").trim();
   document.getElementById("searchInput").value = q;
   if (!q) return fill(app, h("p", {}, "Type a word to search."));
@@ -32,7 +32,8 @@ export async function renderSearch(app, { q, expand }) {
 
   const { books } = await data.books();
   const terms = contentTerms(q);
-  if (tokens(q).length > 1) return renderPhrase(out, q, books, expand !== "0");
+  const scope = currentScope(scopeId);
+  if (tokens(q).length > 1) return renderPhrase(out, q, books, scope);
 
   const res = await searchWord(terms[0] || q);
   const sel = new Selection(books);
@@ -61,8 +62,14 @@ export async function renderSearch(app, { q, expand }) {
   const direct = new Set([...res.main, ...res.rare].map((x) => x.strong));
   const seeds = res.main.slice(0, 6).map((x) => x.strong);
   if (!seeds.length) return fill(fieldBox);
-  const field = await meaningField(seeds, direct);
-  fill(fieldBox, renderField(field, res, sel));
+  const switcher = scopeSwitch(q, scope);
+  if (scope.id === "direct") {
+    fill(fieldBox, h("h2", {}, "Other original words for this idea"), switcher,
+      h("p", { class: "muted small" }, "Switch to Narrow or Broad to list related words that aren't translated this way."));
+    return;
+  }
+  const field = await meaningField(seeds, direct, scope);
+  fill(fieldBox, renderField(field, res, sel, switcher));
 }
 
 // ---- Selection: tick lemmas anywhere on the page, then list their verses together ----
@@ -194,8 +201,8 @@ async function conceptCard(c, sel) {
       h("tbody", {}, rows))));
 }
 
-function renderField(field, res, sel) {
-  if (!field.words.length) return null;
+function renderField(field, res, sel, switcher) {
+  if (!field.words.length) return [h("h2", {}, "Other original words for this idea"), switcher, h("p", { class: "muted small" }, "No related words at this setting.")];
   const names = new Map([...res.main, ...res.rare].map((x) => [x.strong, x.entry?.l || x.strong]));
   const name = (s) => names.get(s) || s;
   const domLabel = (d) => d.id.startsWith("G:")
@@ -214,6 +221,7 @@ function renderField(field, res, sel) {
   const groups = [["Hebrew & Aramaic", (w) => w.strong[0] === "H"], ["Greek", (w) => w.strong[0] === "G"]];
   return h("div", {},
     h("h2", {}, `Other original words for this idea`),
+    switcher,
     h("p", { class: "muted small" },
       `Close in meaning to the words above but not (or rarely) translated “${res.term}”. Evidence: MACULA cross-language synonym scores, Septuagint Hebrew↔Greek translation pairs, and shared semantic domains.`),
     h("div", { class: "domains" }, field.domains.map((d) => h("span", { class: "tag" }, domLabel(d)))),
@@ -233,9 +241,21 @@ function renderField(field, res, sel) {
     }));
 }
 
+// ---- Narrow / broad switch (shared by phrase search and the meaning field) ----
+
+function scopeSwitch(q, scope) {
+  return h("div", { class: "scope" },
+    h("div", { class: "seg", role: "radiogroup", "aria-label": "How widely to search by meaning" },
+      Object.values(SCOPES).map((s) => h("a", {
+        class: s.id === scope.id ? "on" : null, role: "radio", "aria-checked": String(s.id === scope.id),
+        href: `#/s?q=${encodeURIComponent(q)}&scope=${s.id}`, title: s.hint,
+      }, s.label))),
+    h("span", { class: "muted small" }, scope.hint));
+}
+
 // ---- Phrase search: exact wording + by meaning, across both testaments ----
 
-async function renderPhrase(out, q, books, expand) {
+async function renderPhrase(out, q, books, scope) {
   const order = new Map(books.map((b, i) => [b.id, i]));
   const key = (ref) => {
     const [b, c, v] = ref.split(".");
@@ -266,14 +286,12 @@ async function renderPhrase(out, q, books, expand) {
     return;
   }
   fill(meaningBox, h("h2", {}, "By meaning"), h("p", { class: "muted" }, "Searching…"));
-  const res = await searchPhrase(q, key, { expand });
+  const res = await searchPhrase(q, key, scope);
   const items = res.verses.map((v) => ({ ref: v.ref, words: [...new Set(v.hits.map((x) => x.w))], hits: v.hits }));
   fill(meaningBox,
     h("h2", {}, "By meaning"),
     h("p", { class: "muted small" }, `Verses where original words translated ${res.terms.map((t) => `“${t}”`).join(" + ")} occur within a few words of each other, in any order.`),
-    h("label", { class: "toggle" },
-      h("input", { type: "checkbox", checked: expand, onchange: (e) => (location.hash = `#/s?q=${encodeURIComponent(q)}${e.target.checked ? "" : "&expand=0"}`) }),
-      " Include close synonyms and Septuagint equivalents (finds e.g. חֶסֶד, רַחֲמִים for “mercy”)"),
+    scopeSwitch(q, scope),
     res.missing ? h("p", {}, `No original word is rendered “${res.missing}”.`)
       : items.length ? [testamentSummary(items, isOT, books), originalWording(items), testamentLists(items, isOT, books)]
         : h("p", {}, "No verses found."));

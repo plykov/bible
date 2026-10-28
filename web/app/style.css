@@ -209,3 +209,9 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 2
 .book-dist .tag.ot { background: color-mix(in srgb, var(--aramaic) 15%, transparent); }
 details.testament > summary { font-size: 1.05rem; }
 .orig-wording { margin: 6px 0; }
+.scope { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 6px 0 10px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg a { padding: 5px 14px; color: var(--ink); background: var(--surface); border-left: 1px solid var(--line); }
+.seg a:first-child { border-left: 0; }
+.seg a:hover { text-decoration: none; background: var(--accent-soft); }
+.seg a.on { background: var(--accent); color: var(--surface); font-weight: 500; }

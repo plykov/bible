@@ -180,6 +180,6 @@ export function save(key, value) {
 
 // replaceChildren() that skips null/false (replaceChildren would print "null").
 export function fill(el, ...kids) {
-  el.replaceChildren(...kids.flat().filter((k) => k != null && k !== false));
+  el.replaceChildren(...kids.flat(Infinity).filter((k) => k != null && k !== false));
   return el;
 }

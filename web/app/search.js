@@ -1,7 +1,7 @@
 // Search engine: English -> original lemmas, phrases, Hebrew/Greek, Strong's.
 import { domains, englishIndex, lex, lemmas, occurrences, phrasePostings, phraseVerses, related } from "./data.js";
 import { stem, tokens } from "./stem.js";
-import { fold } from "./util.js";
+import { fold, save, store } from "./util.js";
 
 const STOP = new Set(
   "a an the of to in on at by for from with and or but not no nor so as is be was were are am been that this these those it its he she they them his her their we us our you your i me my".split(" "),
@@ -49,7 +49,7 @@ export async function searchWord(term) {
 
 // Phrase: find verses where each content word is rendered by some lemma, with the
 // original words close together (original word order often differs from English).
-export async function searchPhrase(query, order, { expand = false } = {}) {
+export async function searchPhrase(query, order, scope = SCOPES.narrow) {
   const terms = contentTerms(query);
   const perTerm = [];
   for (const term of terms) {
@@ -73,20 +73,20 @@ export async function searchPhrase(query, order, { expand = false } = {}) {
     for (const strong of cands) {
       for (const [ref, w] of await matchingOccurrences(strong, st)) push(ref, w, strong, false);
     }
-    if (expand) {
+    if (scope.syn) {
       // Add close synonyms / LXX equivalents, matching all their occurrences.
       const extra = new Set();
       for (const strong of cands) {
         const rel = await related(strong);
-        for (const [k, d] of rel?.syn || []) if (d <= EXPAND_DIST) extra.add(k);
-        // Only strong Septuagint pairs: at least 10% as frequent as the main one.
+        for (const [k, d] of rel?.syn || []) if (d <= scope.syn) extra.add(k);
+        // Only strong Septuagint pairs, relative to the word's main equivalent.
         const top = rel?.lxx?.[0]?.[1] || 0;
-        for (const [k, n] of rel?.lxx || []) if (n >= Math.max(5, top * 0.1)) extra.add(k);
+        for (const [k, n] of rel?.lxx || []) if (n >= Math.max(scope.lxxMin, top * scope.lxxShare)) extra.add(k);
       }
       for (const c of cands) extra.delete(c);
       // Skip related words far more frequent than this term's own matches
       // (e.g. אָמַר "say" for "word"): they would flood the results.
-      const cap = Math.max(3 * total, 300);
+      const cap = Math.max(scope.capFactor * total, 300);
       for (const strong of extra) {
         const occ = (await occurrences(strong))?.o || [];
         if (occ.length > cap) continue;
@@ -145,15 +145,34 @@ export async function phraseExact(query) {
 
 // ---- Meaning field: other original words for the same idea ----
 
-const EXPAND_DIST = 0.6;   // phrase expansion: only very close synonyms
-const FIELD_DIST = 0.72;   // meaning field: synonyms up to this distance
+// How far "by meaning" reaches. One switch drives both the phrase expansion
+// and the related-words list of a single-word search.
+//   syn       max synonym distance added to a phrase term (0 = none)
+//   field     max synonym distance listed under "other original words"
+//   lxxShare  Septuagint pair must be this share of the word's main pair...
+//   lxxMin    ...and occur at least this often
+//   capFactor skip expansion words more than this × the term's own matches
+export const SCOPES = {
+  direct: { id: "direct", label: "Direct", syn: 0, field: 0.6, lxxShare: 1, lxxMin: Infinity, capFactor: 0,
+    hint: "Only the words actually translated by your English terms." },
+  narrow: { id: "narrow", label: "Narrow", syn: 0.6, field: 0.62, lxxShare: 0.1, lxxMin: 5, capFactor: 3,
+    hint: "Adds very close synonyms and strong Septuagint pairs. Precise." },
+  broad: { id: "broad", label: "Broad", syn: 0.7, field: 0.75, lxxShare: 0.05, lxxMin: 3, capFactor: 3,
+    hint: "Adds looser synonyms and weaker Septuagint pairs. For discovery; expect some noise." },
+};
+
+export function currentScope(fromUrl) {
+  const id = SCOPES[fromUrl] ? fromUrl : store("scope", "narrow");
+  if (fromUrl && SCOPES[fromUrl]) save("scope", fromUrl);
+  return SCOPES[id] || SCOPES.narrow;
+}
 
 // Collects words related to the seed lemmas by three independent signals and
 // scores them; a word supported by several signals ranks higher.
 //   syn: cross-language synonym distance (MACULA Proximity), lower = closer
 //   lxx: Septuagint translation equivalent (Hebrew <-> Greek), with count
 //   dom: shares a semantic domain (Louw-Nida / SDBH) with the seeds
-export async function meaningField(seeds, exclude = new Set()) {
+export async function meaningField(seeds, exclude = new Set(), scope = SCOPES.narrow) {
   const catalogue = await domains();
   const field = new Map();
   const add = (strong, reason, score) => {
@@ -167,8 +186,11 @@ export async function meaningField(seeds, exclude = new Set()) {
   for (const seed of seeds) {
     const rel = await related(seed);
     if (!rel) continue;
-    for (const [k, d] of rel.syn || []) if (d <= FIELD_DIST) add(k, { type: "syn", from: seed, d }, 1 - d);
-    for (const [k, n] of rel.lxx || []) add(k, { type: "lxx", from: seed, n }, Math.min(0.9, 0.35 + n / 40));
+    for (const [k, d] of rel.syn || []) if (d <= scope.field) add(k, { type: "syn", from: seed, d }, 1 - d);
+    const top = rel.lxx?.[0]?.[1] || 0;
+    for (const [k, n] of rel.lxx || []) {
+      if (n >= Math.min(scope.lxxMin, 5) && n >= top * scope.lxxShare) add(k, { type: "lxx", from: seed, n }, Math.min(0.9, 0.35 + n / 40));
+    }
     // Only each seed's primary domain: secondary ones come from special uses
     // (e.g. the participle "lover" tagged as a kind of person) and add noise.
     const [d, n] = rel.dom?.[0] || [];

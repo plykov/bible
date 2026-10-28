@@ -31,6 +31,9 @@ build step for the frontend: plain ES modules plus pre-built JSON shards.
     - by meaning: the original words for each term close together, widened with close
       synonyms and Septuagint equivalents (`mercy and love` → חֶסֶד + אָהֵב, רַחֲמִים + חֶסֶד,
       ἔλεος + ἀγάπη), with Hebrew Bible / New Testament counts
+    - a **Direct / Narrow / Broad** switch sets how far "by meaning" reaches, for phrases and for
+      the related-words list. It is remembered between visits and kept in the URL. The presets
+      are `SCOPES` in `web/app/search.js`.
   - Hebrew or Greek (vowels and accents ignored), Strong's numbers (`H7225`), or references
     (`Jn 1:1`)
 

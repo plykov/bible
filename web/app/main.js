@@ -22,7 +22,7 @@ async function route() {
     } else if (parts[0] === "w") {
       await renderWord(app, { strong: parts[1], en: params.en });
     } else if (parts[0] === "s") {
-      await renderSearch(app, { q: params.q, expand: params.expand });
+      await renderSearch(app, { q: params.q, scope: params.expand === "0" ? "direct" : params.scope });
     } else if (parts[0] === "about") {
       await renderAbout(app);
     } else {
