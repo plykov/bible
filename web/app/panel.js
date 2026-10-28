@@ -1,6 +1,7 @@
 // Side panel with details for a clicked word.
 import * as data from "./data.js";
 import { fill, h, langOf, morphParts, sanitize, studyLinks, surface } from "./util.js";
+import { CLAUSE_KIND, CLAUSE_RELATION, CLAUSE_TYPE, FUNCTION, PHRASE_TYPE, textType } from "./syntax.js";
 
 const panel = () => document.getElementById("panel");
 
@@ -18,7 +19,8 @@ export async function openWord(el, { b, ch, vs, idx, w, ot }) {
   const p = panel();
   p.hidden = false;
   const lang = ot ? "heb" : "grk";
-  const [entry, morphTable] = await Promise.all([w.s ? data.lex(w.s) : null, data.morph(lang)]);
+  const [entry, morphTable, syntax] = await Promise.all([w.s ? data.lex(w.s) : null, data.morph(lang), ot ? data.syntaxChapter(b.id, ch) : null]);
+  const syn = syntaxInfo(syntax?.[vs], idx);
   const language = ot ? (w.m?.[0] === "A" ? "Aramaic" : "Hebrew") : "Greek";
 
   const morph = morphParts(w.m, lang).map((code) => {
@@ -57,6 +59,13 @@ export async function openWord(el, { b, ch, vs, idx, w, ot }) {
         h("a", { class: "btn primary", href: `#/w/${w.s}` }, "Full word study →"))
       : null,
     h("h4", {}, "Grammar"), h("ul", { class: "morph-list" }, morph),
+    syn ? h("div", { class: "syn" }, h("h4", {}, "Syntax (ETCBC BHSA)"),
+      h("ul", { class: "morph-list" },
+        syn.fn ? h("li", {}, h("strong", {}, FUNCTION[syn.fn] || syn.fn), syn.ptyp ? ` · in a ${(PHRASE_TYPE[syn.ptyp] || syn.ptyp).toLowerCase()}` : "") : null,
+        syn.clause ? h("li", {}, CLAUSE_TYPE[syn.clause.typ] || syn.clause.typ,
+          syn.clause.kind ? ` (${CLAUSE_KIND[syn.clause.kind]})` : "",
+          syn.clause.rela && syn.clause.rela !== "NA" ? ` · ${CLAUSE_RELATION[syn.clause.rela] || syn.clause.rela}` : "") : null,
+        syn.clause?.tt ? h("li", {}, `Text type: ${syn.clause.tt.path}`) : null)) : null,
     morphemes,
     variant.length ? h("div", { class: "variants" }, h("h4", {}, "Textual variants"), variant) : null,
     entry ? h("details", { open: true }, h("summary", {}, "Dictionary (brief)"), h("div", { class: "def", html: sanitize(entry.d) })) : null,
@@ -64,6 +73,17 @@ export async function openWord(el, { b, ch, vs, idx, w, ot }) {
       studyLinks(w.s, entry?.l).map(([n, u]) => h("a", { href: u, target: "_blank", rel: "noopener" }, n))) : null,
   );
   p.scrollTop = 0;
+}
+
+// Phrase function and clause of TAHOT word `idx` in a verse's BHSA record.
+function syntaxInfo(s, idx) {
+  if (!s) return null;
+  const ph = s.p[s.w[idx - 1]];
+  const a = s.a.find(([first, last]) => idx >= first && idx <= last);
+  return {
+    fn: ph?.[0], ptyp: ph?.[1],
+    clause: a ? { typ: a[3], tt: textType(a[4]), rela: a[5], kind: a[6] } : null,
+  };
 }
 
 export { langOf };

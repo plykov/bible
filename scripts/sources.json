@@ -73,5 +73,27 @@
     "license": "CC BY-NC 4.0",
     "credit": "ETCBC / CACCHT Dead Sea Scrolls (Abegg transcriptions), Text-Fabric 2.0.2",
     "url": "https://github.com/ETCBC/dss"
+  },
+  "bhsa": {
+    "repo": "https://github.com/ETCBC/bhsa.git",
+    "commit": "4db00e2157915495e1a4d3d57e41223df24775da",
+    "paths": [
+      "tf/2021/otype.tf",
+      "tf/2021/oslots.tf",
+      "tf/2021/book.tf",
+      "tf/2021/chapter.tf",
+      "tf/2021/verse.tf",
+      "tf/2021/trailer_utf8.tf",
+      "tf/2021/g_cons_utf8.tf",
+      "tf/2021/function.tf",
+      "tf/2021/typ.tf",
+      "tf/2021/rela.tf",
+      "tf/2021/txt.tf",
+      "tf/2021/kind.tf",
+      "tf/2021/tab.tf"
+    ],
+    "license": "CC BY-NC 4.0",
+    "credit": "ETCBC BHSA: Biblia Hebraica Stuttgartensia Amstelodamensis, linguistic database (2021)",
+    "url": "https://github.com/ETCBC/bhsa"
   }
 }

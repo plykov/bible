@@ -243,3 +243,25 @@ details.testament > summary { font-size: 1.05rem; }
 .variant-list td { vertical-align: top; }
 .variant-list .vd { font-family: var(--heb); font-size: 1.1rem; unicode-bidi: isolate; display: inline-block; }
 .variant-list td:last-child { direction: ltr; }
+
+/* ---- Syntax (BHSA) ---- */
+.clauses { margin-top: 6px; display: grid; gap: 2px; }
+.clause { display: flex; align-items: flex-start; gap: 8px; padding-inline-start: calc(var(--tab) * 1.6rem); border-inline-start: 2px solid transparent; }
+.clause .clabel { flex: none; width: 9.5rem; margin-top: 10px; font: 0.7rem var(--ui); color: var(--muted); text-align: left; cursor: help; }
+.clause .cwords { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.tt { display: inline-block; width: 1.3em; margin-right: 4px; border-radius: 3px; text-align: center; font-weight: 600; color: var(--surface); }
+.tt-N { background: #6b7a8f; } .tt-Q { background: #b5763a; } .tt-D { background: #5d8a5b; }
+.crel { color: var(--accent); }
+.word .fn { font: 600 0.62rem var(--ui); letter-spacing: 0.02em; text-transform: uppercase; color: var(--muted); direction: ltr; cursor: help; }
+.hide-syntax .word .fn { display: none; }
+.word[data-group] { border-bottom: 3px solid var(--fncol, transparent); border-radius: 6px 6px 0 0; }
+.hide-syntax .word[data-group] { border-bottom-color: transparent; }
+.word[data-group="pred"] { --fncol: #3b6fb6; } .word[data-group="pred"] .fn { color: #3b6fb6; }
+.word[data-group="subj"] { --fncol: #c0533a; } .word[data-group="subj"] .fn { color: #c0533a; }
+.word[data-group="objc"] { --fncol: #3f8f5a; } .word[data-group="objc"] .fn { color: #3f8f5a; }
+.word[data-group="cmpl"] { --fncol: #8a63b8; } .word[data-group="cmpl"] .fn { color: #8a63b8; }
+.word[data-group="prec"] { --fncol: #2f8f8f; } .word[data-group="prec"] .fn { color: #2f8f8f; }
+.word[data-group="voct"] { --fncol: #c98a1b; } .word[data-group="voct"] .fn { color: #c98a1b; }
+.word[data-group="frnt"] { --fncol: #a07a1a; } .word[data-group="frnt"] .fn { color: #a07a1a; }
+.word[data-group="other"] { --fncol: var(--line); }
+@media (max-width: 720px) { .clause { flex-direction: column; gap: 0; } .clause .clabel { width: auto; margin: 4px 0 0; } }

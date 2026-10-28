@@ -3,8 +3,9 @@ import * as data from "../data.js";
 import { fill, h, store, save, surface, verseLinks } from "../util.js";
 import { openWord } from "../panel.js";
 import { DSS_LEGEND, findspot, renderDss, substantive } from "../dss.js";
+import { CLAUSE_KIND, CLAUSE_RELATION, CLAUSE_TYPE, FUNCTION, FUNCTION_GROUP, FUNCTION_SHORT, PHRASE_TYPE, textType } from "../syntax.js";
 
-const DEFAULTS = { translit: true, gloss: true, strong: false, morph: false, lxx: false, dss: false, variants: true };
+const DEFAULTS = { translit: true, gloss: true, strong: false, morph: false, lxx: false, dss: false, syntax: false, variants: true };
 
 export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
   const { books } = await data.books();
@@ -17,6 +18,7 @@ export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
   }
   const ot = b.t === "OT";
   const loaded = { lxx: false, dss: false };
+  let syntax = null;  // BHSA chapter data, loaded on demand
 
   const nav = h("div", { class: "reader-nav" },
     h("select", { "aria-label": "Book", onchange: (e) => (location.hash = `#/r/${e.target.value}.1`) },
@@ -35,6 +37,7 @@ export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
     toggle("morph", "Grammar"), toggle("variants", "Variants"),
     ot && b.lxx ? toggle("lxx", "Septuagint") : null,
     ot && b.dss ? toggle("dss", "Dead Sea Scrolls") : null,
+    ot ? toggle("syntax", "Syntax (clauses & phrases)") : null,
   );
 
   function toggle(key, label) {
@@ -44,6 +47,7 @@ export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
         save("reader-opts", opts);
         applyOpts();
         if ((key === "lxx" || key === "dss") && e.target.checked) loadParallels();
+        if (key === "syntax") (e.target.checked ? applySyntax() : removeSyntax());
       } }), label);
   }
 
@@ -67,6 +71,7 @@ export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
   const verses = await data.chapter(b.id, ch);
   fill(body, ...verses.map((v) => renderVerse(b, ch, v, ot)));
   if (opts.lxx || opts.dss) loadParallels();
+  if (opts.syntax && ot) await applySyntax();
 
   if (vs) {
     const el = body.querySelector(`[data-v="${vs}"]`);
@@ -82,6 +87,55 @@ export async function renderReader(app, { book, ch, vs, w, dss: forceDss }) {
       }
     }
   } else window.scrollTo(0, 0);
+
+  // ---- Syntax (ETCBC BHSA): clause rows indented by text hierarchy, phrase functions ----
+  async function applySyntax() {
+    syntax ??= await data.syntaxChapter(b.id, ch);
+    if (!syntax) return;
+    for (const el of body.querySelectorAll(".verse")) {
+      const s = syntax[el.dataset.v];
+      const wordsEl = el.querySelector(".words");
+      if (!s || el.querySelector(".clauses")) continue;
+      const buttons = [...wordsEl.children];
+      buttons.forEach((btn, i) => {
+        const ph = s.p[s.w[i]];
+        btn.querySelector(".fn")?.remove();
+        if (!ph) return;
+        const [fn, ptyp] = ph;
+        btn.dataset.group = FUNCTION_GROUP[fn] || "other";
+        btn.dataset.phrase = s.w[i];
+        btn.append(h("span", { class: "fn", title: `${FUNCTION[fn] || fn} · ${PHRASE_TYPE[ptyp] || ptyp}` }, FUNCTION_SHORT[fn] || fn));
+      });
+      const rows = s.a.map(([, , tab, typ, txt, rela, kind]) => {
+        const tt = textType(txt);
+        return h("div", { class: "clause", style: `--tab:${tab}` },
+          h("span", { class: "clabel", dir: "ltr", title: [CLAUSE_TYPE[typ], kind && `${CLAUSE_KIND[kind]} clause`, rela && rela !== "NA" && CLAUSE_RELATION[rela], tt && `text type: ${tt.path}`].filter(Boolean).join(" · ") },
+            tt ? h("span", { class: `tt tt-${tt.letter}` }, tt.letter) : null,
+            (CLAUSE_TYPE[typ] || typ).replace(/ clause$/, ""),
+            rela && rela !== "NA" ? h("span", { class: "crel" }, ` · ${(CLAUSE_RELATION[rela] || rela).replace(/ clause$/, "")}`) : null),
+          h("div", { class: "cwords" }));
+      });
+      let row = 0;
+      buttons.forEach((btn, i) => {
+        const at = s.a.findIndex(([first, last]) => i + 1 >= first && i + 1 <= last);
+        if (at >= 0) row = at;  // unaligned words stay with the previous clause
+        rows[row]?.querySelector(".cwords").append(btn);
+      });
+      el._words = buttons;
+      wordsEl.hidden = true;
+      wordsEl.after(h("div", { class: "clauses", dir: "rtl" }, rows));
+    }
+  }
+  function removeSyntax() {
+    for (const el of body.querySelectorAll(".verse")) {
+      const wordsEl = el.querySelector(".words");
+      if (!el._words) continue;
+      wordsEl.append(...el._words);
+      el.querySelector(".clauses")?.remove();
+      wordsEl.hidden = false;
+      el._words = null;
+    }
+  }
 
   async function loadParallels() {
     if (opts.dss && !loaded.dss && b.dss) {

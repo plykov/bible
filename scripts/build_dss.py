@@ -16,6 +16,7 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
+import tf
 from dss_compare import compare
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -34,30 +35,7 @@ BOOK_MAP = {
 
 
 def read_tf(name, parse=lambda v: v):
-    """Minimal Text-Fabric .tf reader: '@' header, blank line, then data lines of
-    'value' (next node), 'node<TAB>value' or 'from-to<TAB>value'."""
-    out = {}
-    with open(TF / f"{name}.tf", encoding="utf-8") as f:
-        lines = f.read().split("\n")
-    i = 0
-    while i < len(lines) and lines[i].startswith("@"):
-        i += 1
-    n = 0
-    for line in lines[i + 1:]:
-        if not line:
-            continue
-        if "\t" in line:
-            k, v = line.split("\t", 1)
-            a, _, b = k.partition("-")
-            a, b = int(a), int(b or a)
-        else:
-            a = b = n + 1
-            v = line
-        v = parse(v.replace("\\t", "\t").replace("\\n", "\n").replace("\\\\", "\\"))
-        for x in range(a, b + 1):
-            out[x] = v
-        n = b
-    return out
+    return tf.read_tf(TF / f"{name}.tf", parse)
 
 
 OPENERS = {"[": ("rec", 1), "]": ("rec", -1), "{": ("del", 1), "}": ("del", -1),
@@ -95,22 +73,11 @@ def preserved_letters(text):
     return n
 
 
-def slot_bounds(v):
-    """'1-3,5' -> (1, 5)"""
-    nums = [int(x) for x in re.split(r"[-,]", v)]
-    return min(nums), max(nums)
-
-
 def build(chapters, out_dir, write_json):
     if not (TF / "otype.tf").exists():
         print("dss: source missing, skipping")
         return {}
-    ranges = {}
-    for line in (TF / "otype.tf").read_text(encoding="utf-8").split("\n"):
-        if "\t" in line and not line.startswith("@"):
-            k, t = line.split("\t")
-            a, b = map(int, k.split("-"))
-            ranges[t] = (a, b)
+    ranges = tf.read_otype(TF / "otype.tf")
 
     # Hebrew ref -> English (ch, vs), from TAHOT
     heb2eng = {}
@@ -126,7 +93,7 @@ def build(chapters, out_dir, write_json):
     after = read_tf("after")
     scroll = read_tf("scroll")
     fragment = read_tf("fragment")
-    oslots = read_tf("oslots", slot_bounds)  # node -> (first slot, last slot)
+    oslots = read_tf("oslots", tf.slot_bounds)  # node -> (first slot, last slot)
 
     # Fragment slot ranges -> (scroll, fragment label), for locating each word.
     fa, fb = ranges["fragment"]

@@ -50,7 +50,8 @@ def skeletons(c):
 
 def skeleton(c):
     """One representative skeleton (for similarity scoring)."""
-    return min(skeletons(c), key=len) if c else c
+    # Ties broken alphabetically: set order varies between runs (hash seeds).
+    return min(skeletons(c), key=lambda x: (len(x), x)) if c else c
 
 
 def similarity(a, b):

@@ -3,6 +3,7 @@ import * as data from "../data.js";
 import { glossMask } from "../search.js";
 import { stem } from "../stem.js";
 import { fill, h, isHebrew, langOf, sanitize, studyLinks, surface } from "../util.js";
+import { FUNCTION } from "../syntax.js";
 
 export async function renderWord(app, { strong, en }) {
   const [entry, occ] = await Promise.all([data.lex(strong), data.occurrences(strong)]);
@@ -17,6 +18,7 @@ export async function renderWord(app, { strong, en }) {
   const groupBy = h("select", { onchange: () => drawGroups() },
     h("option", { value: "gloss" }, "Group by English rendering"),
     occ?.s?.filter(Boolean).length > 1 ? h("option", { value: "sense" }, "Group by sense") : null,
+    occ?.r ? h("option", { value: "role" }, "Group by syntactic role (subject, object…)") : null,
     h("option", { value: "book" }, "Group by book"));
   const onlyMatch = st ? h("label", { class: "toggle" }, h("input", { type: "checkbox", checked: true, onchange: () => drawGroups() }), ` Only where rendered “${en}”`) : null;
   const groups = h("div", { class: "groups" });
@@ -79,7 +81,10 @@ export async function renderWord(app, { strong, en }) {
     }
     const map = new Map();
     for (const o of list) {
-      const key = mode === "gloss" ? occ.g[o[2]] || "—" : mode === "sense" ? occ.s[o[3]] || "(general)" : o[0].split(".")[0];
+      const key = mode === "gloss" ? occ.g[o[2]] || "—"
+        : mode === "sense" ? occ.s[o[3]] || "(general)"
+        : mode === "role" ? FUNCTION[occ.r[o[4]]] || "(no syntactic role recorded)"
+        : o[0].split(".")[0];
       if (!map.has(key)) map.set(key, []);
       map.get(key).push(o);
     }
